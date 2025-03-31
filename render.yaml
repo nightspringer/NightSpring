@@ -1,7 +1,7 @@
 services:
   - type: web
     name: nightspring
-    repo: https://github.com/xxwhirlpool/spring
+    repo: https://github.com/nightspringer/NightSpring
     dockerfilePath: Containerfile
     plan: free
     envVars:
