@@ -24,6 +24,9 @@ services:
   - type: redis
     name: nightspring-redis
     plan: free
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: allow all
 
 databases:
   - name: nightspring-db
