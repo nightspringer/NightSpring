@@ -2,6 +2,7 @@ services:
   - type: web
     name: nightspring
     repo: https://github.com/nightspringer/NightSpring
+    runtime: docker
     dockerfilePath: Containerfile
     plan: free
     envVars:
