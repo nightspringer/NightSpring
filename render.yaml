@@ -21,10 +21,10 @@ services:
           type: redis
           property: connectionString
 
-databases:
-  - name: nightspring-db
+  - type: redis
+    name: nightspring-redis
     plan: free
 
-redis:
-  - name: nightspring-redis
+databases:
+  - name: nightspring-db
     plan: free
