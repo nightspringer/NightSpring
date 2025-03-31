@@ -84,4 +84,4 @@ ENV RAILS_LOG_TO_STDOUT=true
 EXPOSE 3000
 
 # ✅ Final crucial line to boot the app
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "${PORT}"]
+CMD bundle exec rails server -b 0.0.0.0 -p $PORT
