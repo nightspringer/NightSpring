@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: nightspring
+    env: ruby
+    repo: https://github.com/xxwhirlpool/spring
+    buildCommand: "bundle install && yarn install && bundle exec rake assets:precompile"
+    startCommand: "bundle exec rails server -b 0.0.0.0 -p $PORT"
+    plan: free
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nightspring-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: nightspring-redis
+          type: redis
+          property: connectionString
+
+databases:
+  - name: nightspring-db
+    plan: free
+
+redis:
+  - name: nightspring-redis
+    plan: free
