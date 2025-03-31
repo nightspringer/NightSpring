@@ -30,4 +30,3 @@ services:
 
 databases:
   - name: nightspring-db
-    plan: free
