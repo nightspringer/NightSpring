@@ -3,7 +3,7 @@
 FROM registry.opensuse.org/opensuse/leap:15.5
 
 LABEL org.opencontainers.image.title="Retrospring (production)"
-LABEL org.opencontainers.image.description="Image containing everything to run Retrospring in production mode.  Do not use this for development."
+LABEL org.opencontainers.image.description="Image containing everything to run Retrospring in production mode. Do not use this for development."
 LABEL org.opencontainers.image.vendor="The Retrospring team"
 LABEL org.opencontainers.image.url="https://github.com/Retrospring/retrospring"
 
@@ -43,9 +43,7 @@ RUN zypper addrepo https://download.opensuse.org/repositories/devel:languages:no
       postgresql-devel \
       # runtime dependencies
       ImageMagick      \
- # cleanup repos
  && zypper clean -a \
- # install yarn as another build dependency
  && npm install -g yarn
 
 # install Ruby via ruby-install
@@ -58,7 +56,7 @@ RUN curl -Lo ruby-install-${RUBY_INSTALL_VERSION}.tar.gz https://github.com/post
 
 # create user and dirs to run retrospring in
 RUN useradd -m justask \
- && install -o justask -g users -m 0755 -d /opt/retrospring/app    \
+ && install -o justask -g users -m 0755 -d /opt/retrospring/app \
  && install -o justask -g users -m 0755 -d /opt/retrospring/bundle
 
 WORKDIR /opt/retrospring/app
@@ -67,21 +65,23 @@ USER justask:users
 # install the app
 RUN curl -L https://github.com/Retrospring/retrospring/archive/${RETROSPRING_VERSION}.tar.gz | tar xz --strip-components=1
 
-RUN bundle config set without 'development test'     \
+RUN bundle config set without 'development test' \
  && bundle config set path '/opt/retrospring/bundle' \
- && bundle install --jobs=$(nproc)                   \
+ && bundle install --jobs=$(nproc) \
  && yarn install --frozen-lockfile
 
 # temporarily set a SECRET_KEY_BASE and copy config files so rake tasks can run
 ARG SECRET_KEY_BASE=secret_for_build
-RUN cp config/justask.yml.example config/justask.yml    \
+RUN cp config/justask.yml.example config/justask.yml \
  && cp config/database.yml.postgres config/database.yml \
- && bundle exec rails locale:generate                   \
- && bundle exec i18n export                             \
- && bundle exec rails assets:precompile                 \
+ && bundle exec rails locale:generate \
+ && bundle exec i18n export \
+ && bundle exec rails assets:precompile \
  && rm config/justask.yml config/database.yml
 
-# set some defaults
 ENV RAILS_LOG_TO_STDOUT=true
 
 EXPOSE 3000
+
+# ✅ Final crucial line to boot the app
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "${PORT}"]
