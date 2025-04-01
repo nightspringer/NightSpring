@@ -51,7 +51,8 @@ RUN bundle config set without 'development test' \
  && yarn install --frozen-lockfile
 
 # Precompile assets with production secret
-RUN bundle exec rails locale:generate \
+RUN bundle exec rails assets:clobber \
+ && bundle exec rails locale:generate \
  && bundle exec i18n export \
  && bundle exec rails assets:precompile
 
