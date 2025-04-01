@@ -4,7 +4,6 @@ require "rails_helper"
 require "support/example_exporter"
 require "base64"
 
-# This only tests the exporter itself to make sure zip file creation works.
 RSpec.describe Exporter do
   include ActiveSupport::Testing::TimeHelpers
 
@@ -14,8 +13,8 @@ RSpec.describe Exporter do
 
   before do
     stub_const("APP_CONFIG", {
-      "site_name"      => "justask",
-      "hostname"       => "example.com",
+      "site_name"      => "NightSpring",
+      "hostname"       => "nightspring.net",
       "https"          => true,
       "items_per_page" => 5,
       "fog"            => {}
@@ -49,26 +48,20 @@ RSpec.describe Exporter do
     it "creates a zip file with the expected contents" do
       subject
 
-      # check created zip file
       zip_path = Rails.public_path.join("export/#{export_name}.zip")
       expect(File.exist?(zip_path)).to be true
 
       Zip::File.open(zip_path) do |zip|
-        # check for zip comment
-        expect(zip.comment).to eq "justask export done for fizzyraccoon on 2022-12-10T13:37:42Z\n"
+        expect(zip.comment).to eq "NightSpring export done for fizzyraccoon on 2022-12-10T13:37:42Z\n"
 
-        # check if all files and directories are there
         expect(zip.entries.map(&:name).sort).to eq([
-          # basic dirs from exporter
           "#{export_name}/",
           "#{export_name}/pictures/",
-          # files added by the ExampleExporter
           "#{export_name}/textfile.txt",
           "#{export_name}/pictures/example.jpg",
           "#{export_name}/some.json"
         ].sort)
 
-        # check if the file contents match
         expect(zip.file.read("#{export_name}/textfile.txt")).to eq("Sample Text\n")
         expect(Base64.encode64(zip.file.read("#{export_name}/pictures/example.jpg")))
           .to eq(Base64.encode64(File.read(File.expand_path("../fixtures/files/banana_racc.jpg", __dir__))))
@@ -94,7 +87,7 @@ RSpec.describe Exporter do
 
     it "updates the export fields of the user" do
       expect { subject }.to change { user.export_processing }.from(true).to(false)
-      expect(user.export_url).to eq("https://example.com/export/#{export_name}.zip")
+      expect(user.export_url).to eq("https://nightspring.net/export/#{export_name}.zip")
       expect(user.export_created_at).to eq(Time.utc(2022, 12, 10, 13, 37, 42))
       expect(user).to be_persisted
     end
