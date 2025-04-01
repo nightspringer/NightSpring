@@ -53,8 +53,7 @@ RUN bundle config set without 'development test' \
 ARG SECRET_KEY_BASE=secret_for_build
 
 # Copy config files and precompile assets
-RUN cp config/nightspring.yml config/justask.yml \
- && cp config/database.yml.postgres config/database.yml \
+RUN cp config/database.yml.postgres config/database.yml \
  && bundle exec rails locale:generate \
  && bundle exec i18n export \
  && bundle exec rails assets:precompile \
