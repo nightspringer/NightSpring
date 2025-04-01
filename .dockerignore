@@ -1,0 +1,17 @@
+# Ignore node_modules and vendor cache
+node_modules
+vendor/bundle
+
+# Ignore logs and temp files
+log/*
+tmp/*
+!.keep
+
+# Ignore uploaded files (if using ActiveStorage)
+storage/*
+!storage/.keep
+
+# Ignore .env and build artifacts
+.env
+.env.production
+/public/assets
