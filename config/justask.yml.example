@@ -1,91 +1,75 @@
 # The site name, shown everywhere.
-site_name: "justask"
+site_name: "NightSpring"
 
-# The sites tagline, shown on the start page
-site_tagline: "Ask questions, give answers and learn more about your friends."
+# The site's tagline, shown on the start page
+site_tagline: "A safe space for writers, readers, and Twitter users to connect with their followers."
 
 # Use the SVG logo from `/public/logo.svg`
 use_svg_logo: false
 
-hostname: "justask.rrerr.net"
+hostname: "nightspring.net"
 https: true
 
-email_from: "noreply@justask.rrerr.net"
+email_from: "noreply@nightspring.net"
 
 # Used in two cases:
 # * Required by WebPush spec in case of problems with notifications
 # * Used as a contact email on the Privacy Policy page
-contact_email: "contact@example.com"
+contact_email: "contact@nightspring.net"
 
-# Name of the "Anonymous" user. (e.g. "Anonymous Coward", "Arno Nym", "Mr. X", ...)
+# Name of the "Anonymous" user.
 anonymous_name: "Anonymous"
 
 forbidden_screen_names:
-  - justask_admin
-  - retrospring_admin
+  - nightspring
+  - nightspring_admin
   - admin
-  - justask
-  - retrospring
-  - moderation
-  - moderator
   - mod
+  - moderator
   - administrator
   - siteadmin
   - site_admin
   - help
-  - retro_spring
-  - retroospring
-  - retrosprlng
+  - support
+  - retrospring
+  - retrospring_admin
+  - justask
+  - justask_admin
 
 # Text shown on the about page (Markdown can be used here)
 about: |
   # About
 
-  Use this space to describe your Retrospring instance!
+  **NightSpring** is a small and cozy Q&A site built for Twitter users and writers.
+
+  This site is a space to share thoughts, interact with your followers, and ask or answer questions — anonymously if you’d like.
+
+  NightSpring is lovingly maintained by a single person. That means moderation is handled manually, and to keep the space safe, **sign-ups may close soon**.
+
+  Be kind. Be curious. Be respectful. And please note: **NightSpring is for users 18+ only.**
 
 # Custom links in the footer
 # links:
-  # - text: "Patreon"
-    # url: "https://patreon.com/retrospring"
+#   - text: "Patreon"
+#     url: "https://patreon.com/nightspring"
 
 # How many items (questions, answers, ...) do you want to show per page?
 items_per_page: 10
 
 features:
-  # "Discover" page
   discover:
     enabled: true
-  # Public timeline
   public:
-    enabled: true
-  # Registrations
+    enabled: false
   registration:
     enabled: true
-  # Advanced (marketing) frontpage layout
   advanced_frontpage:
     enabled: false
-  # readonly mode -- users can only delete
   readonly:
     enabled: false
 
 # Redis
 redis_url: "redis://localhost:6379"
-
-# uncomment if using cloud storage
-# fog:
-  # fog credentials
-  # credentials:
-    # provider: 'AWS'
-    # aws_access_key_id: 'ACCESS KEY'
-    # aws_secret_access_key: 'SECRET KEY'
-    # region: 'space-pluto-1'
-    ## URL host, comment out to use default, GENERALLY you don't want to define this
-    # host: 's3.wherever.com'
-    ## if you want to use Ceph RadosGW, use these options (region doesn't matter)
-    # endpoint: 'http://radosgw.example.com'
-    # path_style: true
-  # bucket name, required
-  # directory: 'retrospring'
 
 # hCaptcha -- get keys from https://www.hcaptcha.com/
 hcaptcha:
@@ -99,18 +83,19 @@ otp_drift_period: 30
 # This list controls which hosts are excempt from the linkfilter
 # Note: `hostname` is always included by default
 allowed_hosts_in_markdown:
-  - twitter.com
+  - x.com
   - youtube.com
   - youtu.be
+  - spotify.com
 
 # Sentry connection string
 sentry_dsn: ''
 
 # Canny feedback forms
 # canny:
-#  sso: "CANNY_SSO_TOKEN_HERE"
-#  feature_board: "CANNY_FEATURE_BOARD_TOKEN"
-#  bug_board: "CANNY_BUGS_BOARD_TOKEN"
+#   sso: "CANNY_SSO_TOKEN_HERE"
+#   feature_board: "CANNY_FEATURE_BOARD_TOKEN"
+#   bug_board: "CANNY_BUGS_BOARD_TOKEN"
 
 # If you run a fork, please uncomment and adjust this url!
 # source_url: "https://github.com/retrospring/retrospring"
