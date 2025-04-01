@@ -1,3 +1,9 @@
+# config/initializers/15_sidekiq.rb
+
+unless defined?(Rails::Server) || defined?(Sidekiq::CLI)
+  return
+end
+
 require "rpush/daemon"
 require "rpush/daemon/store/active_record"
 require "rpush/client/active_record"
