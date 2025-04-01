@@ -29,6 +29,12 @@
     = yield(:meta)
 
   %body{ class: user_signed_in? ? nil : 'not-logged-in', data: { controller: "capabilities" } }
+
+    %nav.navbar.navbar-themed.navbar-expand-lg.bg-primary.fixed-top{ role: :navigation }
+      .container
+        = link_to root_path, class: "navbar-brand" do
+          = image_tag "nightspring_logo_clean.png.png", height: "40", alt: "NightSpring"
+
     - if user_signed_in?
       = render 'navigation/main'
     - else
