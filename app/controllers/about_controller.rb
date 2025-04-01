@@ -2,9 +2,13 @@
 
 class AboutController < ApplicationController
   def index
-    return unless Retrospring::Config.advanced_frontpage_enabled?
+    return render template: "about/index_advanced" if Retrospring::Config.advanced_frontpage_enabled?
 
-    render template: "about/index_advanced"
+    if user_signed_in?
+      redirect_to timeline_path
+    else
+      render template: "pages/guest_landing"
+    end
   end
 
   def about
