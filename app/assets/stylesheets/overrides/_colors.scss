@@ -1,21 +1,65 @@
-@each $color in $color-names {
-  .bg-#{$color} {
-    background-color: var(--#{$color}) !important;
-  }
-
-  .text-#{$color} {
-    color: var(--#{$color}) !important;
-  }
+:root {
+  --primary: #ff4f94;
+  --primary-light: #ffb6d5;
+  --primary-dark: #c6286b;
+  --text-color: #d10063;
+  --bg-color: #ffeef6;
+  --white: #ffffff;
+  --muted-text: 200, 50, 90;
 }
 
-.text-muted {
-  color: RGB(var(--muted-text)) !important;
+body {
+  font-family: "Lexend", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.text-bg-primary {
-  color: RGB(var(--primary-text)) !important;
+.logo {
+  font-family: "Lexend", cursive;
+  font-weight: 800;
+  font-size: 3rem;
+  color: var(--primary);
+  text-shadow: 2px 2px var(--primary-dark);
+  margin-bottom: 1rem;
+}
 
-  a:not(.btn) {
-    color: inherit !important;
-  }
+.tagline {
+  font-size: 1.25rem;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+}
+
+.button-primary {
+  background-color: var(--primary);
+  color: var(--white);
+  padding: 1rem 2.5rem;
+  border: none;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 8px rgba(255, 79, 148, 0.3);
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.button-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+.link {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
 }
