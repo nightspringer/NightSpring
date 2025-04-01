@@ -6,6 +6,8 @@ services:
     dockerfilePath: Containerfile
     plan: free
     region: ohio
+    startCommand: >
+      bundle exec rails db:migrate && bundle exec rails server -b 0.0.0.0 -p $PORT
     envVars:
       - key: RAILS_ENV
         value: production
@@ -24,6 +26,12 @@ services:
         value: debug
       - key: RAILS_SERVE_STATIC_FILES
         value: true
+      - key: NODE_ENV
+        value: production
+      - key: BUNDLE_DEPLOYMENT
+        value: true
+      - key: BUNDLE_WITHOUT
+        value: "development:test"
 
   - type: redis
     name: nightspring-redis
