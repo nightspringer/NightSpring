@@ -7,7 +7,7 @@ class InboxController < ApplicationController
     find_inbox_entries
 
     @delete_id = find_delete_id
-    @disabled = true if @inbox.empty?
+    @disabled = @inbox.empty?
 
     mark_inbox_entries_as_read
 
@@ -20,18 +20,24 @@ class InboxController < ApplicationController
   def create
     return redirect_to inbox_path if Retrospring::Config.readonly?
 
-    question = Question.create!(content:             QuestionGenerator.generate,
-                                author_is_anonymous: true,
-                                author_identifier:   "justask",
-                                user:                current_user)
+    question = Question.create!(
+      content:             QuestionGenerator.generate,
+      author_is_anonymous: true,
+      author_identifier:   "nightspring",
+      user:                current_user
+    )
 
-    inbox = InboxEntry.create!(user: current_user, question_id: question.id, new: true)
+    inbox = InboxEntry.create!(
+      user:        current_user,
+      question_id: question.id,
+      new:         true
+    )
+
     increment_metric
 
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.prepend("entries", partial: "inbox/entry", locals: { i: inbox })
-
         inbox.update(new: false)
       end
 
@@ -61,7 +67,6 @@ class InboxController < ApplicationController
 
   # rubocop:disable Rails/SkipsModelValidations
   def mark_inbox_entries_as_read
-    # using .dup to not modify @inbox -- useful in tests
     updated = @inbox&.dup&.update_all(new: false)
     current_user.touch(:inbox_updated_at) if updated.positive?
   end
