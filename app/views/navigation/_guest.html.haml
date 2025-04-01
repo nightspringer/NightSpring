@@ -1,18 +1,40 @@
-%nav.navbar.navbar-themed.navbar-expand-lg.bg-primary.fixed-top{ class: Rails.env.development? ? "navbar-dev" : "", role: :navigation }
+/ DESKTOP NAVBAR (visible on lg and up)
+%nav.navbar.navbar-themed.navbar-expand-lg.bg-primary.fixed-top.d-none.d-lg-flex{ class: Rails.env.development? ? "navbar-dev" : "", role: :navigation }
   .container
-    %a.navbar-brand{ href: '/', title: APP_CONFIG["site_name"] }
+    = link_to root_path, class: "navbar-brand" do
       - if APP_CONFIG["use_svg_logo"]
         = render inline: Rails.application.config.justask_svg_logo
       - else
-        = APP_CONFIG["site_name"]
+        = image_tag "nightspring_logo_clean.png.png", height: "36", alt: "NightSpring"
+
       - if Rails.env.development?
-        %span.badge.rounded-pill.bg-warning.text-bg-warning.fs-7
+        %span.badge.rounded-pill.bg-warning.fs-7.ms-2
           DEV
-    %button.navbar-toggler{ data: { bs_target: '#j2-main-navbar-collapse', bs_toggle: :collapse }, type: :button }
-      %span.visually-hidden= t("navigation.toggle")
+
+    %ul.nav.navbar-nav.ms-auto
+      = nav_entry t("voc.login"), new_user_session_path
+      - if Retrospring::Config.registrations_enabled?
+        = nav_entry t("voc.register"), new_user_registration_path
+
+/ MOBILE NAVBAR (visible below lg)
+%nav.navbar.navbar-themed.navbar-expand-lg.bg-primary.fixed-top.d-lg-none{ role: :navigation }
+  .container
+    = link_to root_path, class: "navbar-brand" do
+      = image_tag "nightspring_logo_clean.png.png", height: "32", alt: "NightSpring"
+
+    %button.navbar-toggler{ type: "button", data: { bs_toggle: "collapse", bs_target: "#navbarMobile" } }
       %span.navbar-toggler-icon
-    .collapse.navbar-collapse#j2-main-navbar-collapse
-      %ul.nav.navbar-nav.ms-auto
+
+    .collapse.navbar-collapse#navbarMobile
+      %ul.navbar-nav.ms-auto
         = nav_entry t("voc.login"), new_user_session_path
         - if Retrospring::Config.registrations_enabled?
           = nav_entry t("voc.register"), new_user_registration_path
+
+/ FOOTER for mobile
+%footer.bg-pink.text-white.text-center.py-3.mt-5.d-lg-none
+  = link_to about_path do
+    = image_tag "nightspring_logo_clean.png.png", height: "28", alt: "About NightSpring", class: "mb-2"
+
+  %small
+    "© #{Time.current.year} NightSpring. All rights reserved."
