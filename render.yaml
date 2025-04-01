@@ -6,19 +6,23 @@ services:
     dockerfilePath: Containerfile
     plan: free
     envVars:
-      - key: RAILS_ENV
-        value: production
-      - key: SECRET_KEY_BASE
-        generateValue: true
-      - key: DATABASE_URL
-        fromDatabase:
-          name: nightspring-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          name: nightspring-redis
-          type: redis
-          property: connectionString
+  - key: RAILS_ENV
+    value: production
+  - key: SECRET_KEY_BASE
+    generateValue: true
+  - key: DATABASE_URL
+    fromDatabase:
+      name: nightspring-db
+      property: connectionString
+  - key: REDIS_URL
+    fromService:
+      name: nightspring-redis
+      type: redis
+      property: connectionString
+  - key: RAILS_LOG_LEVEL
+    value: debug
+  - key: RAILS_SERVE_STATIC_FILES
+    value: true
 
   - type: redis
     name: nightspring-redis
