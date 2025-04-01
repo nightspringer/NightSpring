@@ -3,7 +3,7 @@
 # workaround to get pagination right
 RailsAdmin.config do |config|
   config.asset_source = :sprockets
-  config.main_app_name = %w[justask Kontrollzentrum]
+  config.main_app_name = %w[NightSpring Dashboard]
   config.parent_controller = "::ApplicationController"
 
   ## == Authentication ==
