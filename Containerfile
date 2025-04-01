@@ -6,7 +6,6 @@ LABEL org.opencontainers.image.description="Image containing everything to run N
 LABEL org.opencontainers.image.vendor="NightSpring"
 LABEL org.opencontainers.image.url="https://nightspring.net"
 
-ARG RETROSPRING_VERSION=2023.0131.1
 ARG RUBY_VERSION=3.2.3
 ARG RUBY_INSTALL_VERSION=0.9.3
 ARG BUNDLER_VERSION=2.5.5
@@ -40,8 +39,8 @@ RUN useradd -m nightspring \
 WORKDIR /opt/nightspring/app
 USER nightspring:users
 
-# Download app source
-RUN curl -L https://github.com/Retrospring/retrospring/archive/${RETROSPRING_VERSION}.tar.gz | tar xz --strip-components=1
+# Copy your local code (your Git repo content) into the image
+COPY . .
 
 # Install Ruby & Node packages
 RUN bundle config set without 'development test' \
@@ -49,17 +48,15 @@ RUN bundle config set without 'development test' \
  && bundle install --jobs=$(nproc) \
  && yarn install --frozen-lockfile
 
-# TEMP secret for build assets
+# TEMP secret for asset build
 ARG SECRET_KEY_BASE=secret_for_build
 
-# Copy config files and precompile assets
-RUN cp config/justask.yml.example config/justask.yml \
- && cp config/database.yml.postgres config/database.yml \
- && bundle exec rails locale:generate \
+# Precompile assets (logo, CSS, JS)
+RUN bundle exec rails locale:generate \
  && bundle exec i18n export \
- && bundle exec rails assets:precompile \
- && rm config/database.yml
+ && bundle exec rails assets:precompile
 
 EXPOSE 3000
 
+# Run the app
 CMD bundle exec rails server -b 0.0.0.0 -p $PORT
