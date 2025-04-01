@@ -5,26 +5,22 @@ services:
     build:
       context: .
       dockerfile: .docker/ruby/Dockerfile
-    command: bash -c "rm -f tmp/pids/server.pid && rdebug-ide --skip_wait_for_start --host 0.0.0.0 --port 1234 --dispatcher-port 26162 -- bin/rails s -p 3012 -b '0.0.0.0'"
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b 0.0.0.0"
     depends_on:
       - postgres
       - redis
       - sidekiq
-    env_file:
-      - .env
     environment:
-      - SPROCKETS_CACHE=/cache
-      - DATABASE_URL=postgres://postgres:justask@postgres/justask_development?pool=25
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgres://postgres:1234@postgres:5432/justask_development
+      - REDIS_URL=redis://redis:6379/1
       - RAILS_ENV=production
       - RAILS_SERVE_STATIC_FILES=true
-      - HOSTNAME=spring.love4eva.net
+      - HOSTNAME=nightspring.net
     volumes:
-      - ./:/app
+      - .:/app
       - cache:/cache
     ports:
-      - 192.168.1.219:3012:3012
-      - 1234:1234
+      - "3000:3000"
     restart: unless-stopped
 
   sidekiq:
@@ -34,33 +30,31 @@ services:
     command: bundle exec sidekiq
     depends_on:
       - redis
-    volumes:
-      - ./:/app
-    env_file:
-      - .env
+      - postgres
     environment:
-      - DATABASE_URL=postgres://postgres:justask@postgres/justask_development?pool=25
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgres://postgres:1234@postgres:5432/justask_development
+      - REDIS_URL=redis://redis:6379/1
       - RAILS_ENV=production
+    volumes:
+      - .:/app
     restart: unless-stopped
 
   redis:
     image: redis:6.2.10-alpine
     ports:
-       - 6381:6381
+      - "6379:6379"
     restart: unless-stopped
 
   postgres:
     image: postgres:10.12
-    ports:
-      - 5432:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
-      POSTGRES_PORT: 5432
       POSTGRES_DB: justask_development
+    ports:
+      - "5432:5432"
     volumes:
-      - ./dbb:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
     restart: unless-stopped
 
 volumes:
