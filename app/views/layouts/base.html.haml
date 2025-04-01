@@ -3,7 +3,7 @@
   %head
     %meta{ charset: 'utf-8' }
     %meta{ 'http-equiv': 'X-UA-Compatible', content: 'IE=edge' }
-    %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1, user-scalable=no, viewport-fit=cover' }
+    %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1, user-scalable=no, viewport-fit:cover' }
 
     - if user_signed_in?
       %meta{ name: 'theme-color', content: theme_color, media: '(min-width: 993px)' }
@@ -23,27 +23,28 @@
 
     %title= content_for?(:title) ? yield(:title) : "NightSpring"
     = stylesheet_link_tag "application", data: { 'turbo-track': "reload" }, media: "all"
-    = javascript_include_tag 'application', data: { 'turbo-track': 'reload' }, defer: true
+    = javascript_include_tag "application", data: { 'turbo-track': "reload" }, defer: true
     = csrf_meta_tags
     = yield(:og)
     = yield(:meta)
 
   %body{ class: user_signed_in? ? nil : 'not-logged-in', data: { controller: "capabilities" } }
 
+    / NIGHTSPRING NAVBAR - shows for everyone
     %nav.navbar.navbar-themed.navbar-expand-lg.bg-primary.fixed-top{ role: :navigation }
       .container
-        = link_to root_path, class: "navbar-brand" do
+        = link_to root_path, class: "navbar-brand", title: "NightSpring" do
           = image_tag "nightspring_logo_clean.png.png", height: "40", alt: "NightSpring"
 
     - if user_signed_in?
-      = render 'navigation/main'
+      = render "navigation/main"
     - else
-      = render 'navigation/guest'
+      = render "navigation/guest"
 
-    = render 'shared/announcements'
+    = render "shared/announcements"
     = yield
-    = render 'shared/formatting'
-    = render 'shared/hotkeys'
+    = render "shared/formatting"
+    = render "shared/hotkeys"
     = turbo_frame_tag "modal"
     .d-none#toasts
 
