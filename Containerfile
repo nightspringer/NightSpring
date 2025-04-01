@@ -1,10 +1,10 @@
 # Base image
 FROM registry.opensuse.org/opensuse/leap:15.5
 
-LABEL org.opencontainers.image.title="Retrospring (production)"
-LABEL org.opencontainers.image.description="Image containing everything to run Retrospring in production mode."
-LABEL org.opencontainers.image.vendor="The Retrospring team"
-LABEL org.opencontainers.image.url="https://github.com/Retrospring/retrospring"
+LABEL org.opencontainers.image.title="NightSpring (production)"
+LABEL org.opencontainers.image.description="Image containing everything to run NightSpring in production mode."
+LABEL org.opencontainers.image.vendor="NightSpring"
+LABEL org.opencontainers.image.url="https://nightspring.net"
 
 ARG RETROSPRING_VERSION=2023.0131.1
 ARG RUBY_VERSION=3.2.3
@@ -33,19 +33,19 @@ RUN curl -Lo ruby-install-${RUBY_INSTALL_VERSION}.tar.gz https://github.com/post
  && gem install bundler:${BUNDLER_VERSION}
 
 # Create user and app dirs
-RUN useradd -m justask \
- && install -o justask -g users -m 0755 -d /opt/retrospring/app \
- && install -o justask -g users -m 0755 -d /opt/retrospring/bundle
+RUN useradd -m nightspring \
+ && install -o nightspring -g users -m 0755 -d /opt/nightspring/app \
+ && install -o nightspring -g users -m 0755 -d /opt/nightspring/bundle
 
-WORKDIR /opt/retrospring/app
-USER justask:users
+WORKDIR /opt/nightspring/app
+USER nightspring:users
 
 # Download app source
 RUN curl -L https://github.com/Retrospring/retrospring/archive/${RETROSPRING_VERSION}.tar.gz | tar xz --strip-components=1
 
 # Install Ruby & Node packages
 RUN bundle config set without 'development test' \
- && bundle config set path '/opt/retrospring/bundle' \
+ && bundle config set path '/opt/nightspring/bundle' \
  && bundle install --jobs=$(nproc) \
  && yarn install --frozen-lockfile
 
@@ -53,7 +53,7 @@ RUN bundle config set without 'development test' \
 ARG SECRET_KEY_BASE=secret_for_build
 
 # Copy config files and precompile assets
-RUN cp config/justask.yml.example config/justask.yml \
+RUN cp config/nightspring.yml config/justask.yml \
  && cp config/database.yml.postgres config/database.yml \
  && bundle exec rails locale:generate \
  && bundle exec i18n export \
