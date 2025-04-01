@@ -7,26 +7,28 @@
             .d-inline-block.w-50
               = render inline: Rails.application.config.justask_svg_logo
           - else
-            = APP_CONFIG["site_name"]
+            %span.text-primary.fw-bold
+              = APP_CONFIG["site_name"] || "NightSpring"
           - if Rails.env.development?
             %span.badge.rounded-pill.bg-warning.text-bg-warning
               DEV
-        %p.lead= APP_CONFIG["site_tagline"]
+        %p.lead.text-muted= APP_CONFIG["site_tagline"] || "A safe space for writers, readers, and Twitter users to connect with their followers."
       .col-md-4
         - if Retrospring::Config.registrations_enabled?
           %a.btn.btn-primary.d-grid{ href: url_for(new_user_registration_path) }
             = t("voc.register_now")
           .d-block.text-center.py-2.text-secondary
             = t(".or")
-        .card
+        .card.shadow-sm.border-0
           .card-body
             = bootstrap_form_for(User.new, as: :user, url: session_path(:user), data: { turbo: false }) do |f|
-
-              = f.text_field :login, autofocus: true, autocomplete: :username
-              = f.password_field :password, autocomplete: "current-password"
+              = f.text_field :login, autofocus: true, autocomplete: :username, placeholder: "Username or Email"
+              = f.password_field :password, autocomplete: "current-password", placeholder: "Password"
 
               - if Devise.mappings[:user].rememberable?
-                = f.check_box :remember_me
+                .form-check.mb-3
+                  = f.check_box :remember_me, class: "form-check-input"
+                  = f.label :remember_me, class: "form-check-label"
 
               = f.primary t("voc.login"), class: "btn btn-primary d-grid w-100"
 
