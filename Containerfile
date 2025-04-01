@@ -9,9 +9,11 @@ LABEL org.opencontainers.image.url="https://nightspring.net"
 ARG RUBY_VERSION=3.2.3
 ARG RUBY_INSTALL_VERSION=0.9.3
 ARG BUNDLER_VERSION=2.5.5
+ARG SECRET_KEY_BASE
 
 ENV RAILS_ENV=production
 ENV RAILS_LOG_TO_STDOUT=true
+ENV SECRET_KEY_BASE=$SECRET_KEY_BASE
 
 # Install dependencies
 RUN zypper addrepo https://download.opensuse.org/repositories/devel:languages:nodejs/15.5/devel:languages:nodejs.repo \
@@ -39,7 +41,7 @@ RUN useradd -m nightspring \
 WORKDIR /opt/nightspring/app
 USER nightspring:users
 
-# Copy your local code (your Git repo content) into the image
+# Copy app code into image
 COPY . .
 
 # Install Ruby & Node packages
@@ -48,15 +50,12 @@ RUN bundle config set without 'development test' \
  && bundle install --jobs=$(nproc) \
  && yarn install --frozen-lockfile
 
-# TEMP secret for asset build
-ARG SECRET_KEY_BASE=secret_for_build
-
-# Precompile assets (logo, CSS, JS)
+# Precompile assets with production secret
 RUN bundle exec rails locale:generate \
  && bundle exec i18n export \
  && bundle exec rails assets:precompile
 
 EXPOSE 3000
 
-# Run the app
+# Start server
 CMD bundle exec rails server -b 0.0.0.0 -p $PORT
