@@ -1,0 +1,13 @@
+.container.text-center.mt-5
+  %h1.logo{ style: "font-family: cursive; font-size: 3rem; color: #e91e63; text-shadow: 1px 1px 0 #fff;" }
+    NightSpring
+
+  %p{ style: "color: #e91e63; font-size: 1.25rem;" }
+    Send me questions and get
+    %br
+    to know me!
+
+  = link_to "Ask anonymously", new_question_path, class: "btn btn-lg", style: "background-color: #e91e63; color: white; margin-top: 2rem;"
+
+  %div.mt-3
+    = link_to "Sign in", new_user_session_path, style: "color: #e91e63;"
