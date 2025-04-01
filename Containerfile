@@ -1,4 +1,5 @@
 # Base image
+# Base image
 FROM registry.opensuse.org/opensuse/leap:15.5
 
 LABEL org.opencontainers.image.title="NightSpring (production)"
@@ -40,8 +41,8 @@ USER nightspring:users
 
 COPY . .
 
-# Permissions fix
-RUN chmod -R u+w Gemfile.lock tmp log
+# Create writable dirs (Render-safe)
+RUN mkdir -p tmp log
 
 # Install
 RUN bundle config set without 'development test' \
