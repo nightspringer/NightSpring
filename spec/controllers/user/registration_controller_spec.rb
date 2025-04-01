@@ -4,19 +4,18 @@ require "rails_helper"
 
 describe User::RegistrationsController, type: :controller do
   before do
-    # Required for devise to register routes
     @request.env["devise.mapping"] = Devise.mappings[:user]
 
     stub_const("APP_CONFIG", {
-                 "hostname"               => "example.com",
-                 "https"                  => true,
-                 "items_per_page"         => 5,
-                 "forbidden_screen_names" => %w[
-                   justask_admin retrospring_admin admin justask retrospring
-                   moderation moderator mod administrator siteadmin site_admin
-                   help retro_spring retroospring retrosprlng
-                 ],
-               },)
+      "hostname" => "nightspring.net",
+      "https" => true,
+      "items_per_page" => 5,
+      "forbidden_screen_names" => %w[
+        nightspring_admin nightspring admin mod moderator
+        administrator siteadmin site_admin help support
+        retrospring retrospring_admin justask justask_admin
+      ],
+    })
   end
 
   describe "#create" do
@@ -27,12 +26,12 @@ describe User::RegistrationsController, type: :controller do
         allow(APP_CONFIG).to receive(:dig).with(:features, :readonly, :enabled).and_return(false)
       end
 
-      let :registration_params do
+      let(:registration_params) do
         {
           user: {
-            screen_name:           "dio",
-            email:                 "the-world-21@somewhere.everywhere.now",
-            password:              "AReallySecurePassword456!",
+            screen_name: "dio",
+            email: "the-world-21@nightspring.net",
+            password: "AReallySecurePassword456!",
             password_confirmation: "AReallySecurePassword456!",
           },
         }
@@ -45,7 +44,7 @@ describe User::RegistrationsController, type: :controller do
           allow(controller).to receive(:verify_hcaptcha).and_return(false)
         end
 
-        it "doesn't allow a registration with an invalid captcha" do
+        it "does not allow registration with an invalid captcha" do
           expect { subject }.not_to(change { User.count })
           expect(response).to redirect_to :new_user_registration
         end
@@ -57,7 +56,6 @@ describe User::RegistrationsController, type: :controller do
         end
 
         it "creates a user" do
-          allow(controller).to receive(:verify_hcaptcha).and_return(true)
           expect { subject }.to change { User.count }.by(1)
         end
       end
@@ -70,13 +68,11 @@ describe User::RegistrationsController, type: :controller do
         end
 
         it "redirects to the root page" do
-          allow(controller).to receive(:verify_hcaptcha).and_return(true)
           subject
           expect(response).to redirect_to(root_path)
         end
 
         it "does not create a user" do
-          allow(controller).to receive(:verify_hcaptcha).and_return(true)
           expect { subject }.not_to(change { User.count })
         end
       end
@@ -91,13 +87,13 @@ describe User::RegistrationsController, type: :controller do
 
       subject { post :create, params: registration_params }
 
-      context "when registration params are empty" do
+      context "when params are empty" do
         let(:registration_params) do
           {
             user: {
-              screen_name:           "",
-              email:                 "",
-              password:              "",
+              screen_name: "",
+              email: "",
+              password: "",
               password_confirmation: "",
             },
           }
@@ -112,10 +108,10 @@ describe User::RegistrationsController, type: :controller do
         let(:registration_params) do
           {
             user: {
-              screen_name:           "Dio Brando",
-              email:                 "the-world-21@somewhere.everywhere.now",
-              password:              "AReallySecurePassword456!",
-              password_confirmation: "AReallySecurePassword456!",
+              screen_name: "Dio Brando",
+              email: "world@nightspring.net",
+              password: "securepass123!",
+              password_confirmation: "securepass123!",
             },
           }
         end
@@ -129,10 +125,10 @@ describe User::RegistrationsController, type: :controller do
         let(:registration_params) do
           {
             user: {
-              screen_name:           "moderator",
-              email:                 "the-world-21@somewhere.everywhere.now",
-              password:              "AReallySecurePassword456!",
-              password_confirmation: "AReallySecurePassword456!",
+              screen_name: "moderator",
+              email: "moderator@nightspring.net",
+              password: "securepass123!",
+              password_confirmation: "securepass123!",
             },
           }
         end
@@ -154,7 +150,7 @@ describe User::RegistrationsController, type: :controller do
         allow(APP_CONFIG).to receive(:dig).with(:features, :readonly, :enabled).and_return(false)
       end
 
-      it "redirects to the root page" do
+      it "redirects to root" do
         subject
         expect(response).to redirect_to(root_path)
       end
