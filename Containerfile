@@ -2,7 +2,7 @@
 FROM registry.opensuse.org/opensuse/leap:15.5
 
 LABEL org.opencontainers.image.title="NightSpring (production)"
-LABEL org.opencontainers.image.description="Image containing everything to run NightSpring in production mode."
+LABEL org.opencontainers.image.description="Image to run NightSpring in production."
 LABEL org.opencontainers.image.vendor="NightSpring"
 LABEL org.opencontainers.image.url="https://nightspring.net"
 
@@ -13,53 +13,49 @@ ARG BUNDLER_VERSION=2.5.5
 ENV RAILS_ENV=production
 ENV RAILS_LOG_TO_STDOUT=true
 
-# Install dependencies
+# Dependencies
 RUN zypper addrepo https://download.opensuse.org/repositories/devel:languages:nodejs/15.5/devel:languages:nodejs.repo \
- && zypper --gpg-auto-import-keys up -y \
- && zypper in -y \
-      automake gcc gdbm-devel gzip libffi-devel libopenssl-devel libyaml-devel \
-      jemalloc-devel make ncurses-devel readline-devel tar xz zlib-devel curl \
-      gcc-c++ git libidn-devel nodejs16 npm16 postgresql-devel ImageMagick \
+ && zypper --gpg-auto-import-keys refresh \
+ && zypper install -y \
+    automake gcc gdbm-devel gzip libffi-devel libopenssl-devel libyaml-devel \
+    jemalloc-devel make ncurses-devel readline-devel tar xz zlib-devel curl \
+    gcc-c++ git libidn-devel nodejs16 npm16 postgresql-devel ImageMagick \
  && zypper clean -a \
  && npm install -g yarn
 
-# Install Ruby
+# Ruby
 RUN curl -Lo ruby-install-${RUBY_INSTALL_VERSION}.tar.gz https://github.com/postmodern/ruby-install/archive/v${RUBY_INSTALL_VERSION}.tar.gz \
  && tar xvf ruby-install-${RUBY_INSTALL_VERSION}.tar.gz \
  && (cd ruby-install-${RUBY_INSTALL_VERSION} && make install) \
- && rm -rf ruby-install-${RUBY_INSTALL_VERSION} ruby-install-${RUBY_INSTALL_VERSION}.tar.gz \
- && ruby-install --no-install-deps --cleanup --system --jobs=$(nproc) ruby ${RUBY_VERSION} -- --disable-install-rdoc --with-jemalloc \
+ && ruby-install --no-install-deps --cleanup --system ruby ${RUBY_VERSION} -- --disable-install-rdoc --with-jemalloc \
  && gem install bundler:${BUNDLER_VERSION}
 
-# Create user and app dirs
+# App setup
 RUN useradd -m nightspring \
- && install -o nightspring -g users -m 0755 -d /opt/nightspring/app \
- && install -o nightspring -g users -m 0755 -d /opt/nightspring/bundle
+ && install -o nightspring -g users -d /opt/nightspring/app \
+ && install -o nightspring -g users -d /opt/nightspring/bundle
 
 WORKDIR /opt/nightspring/app
+USER nightspring:users
 
-# Copy project files into image
 COPY . .
 
-# Fix file permission issue for bundler (Gemfile.lock)
-RUN chmod 664 Gemfile.lock || true
+# Permissions fix
+RUN chmod -R u+w Gemfile.lock tmp log
 
-# Install Ruby & Node packages
+# Install
 RUN bundle config set without 'development test' \
  && bundle config set path '/opt/nightspring/bundle' \
  && bundle install --jobs=$(nproc) \
  && yarn install --frozen-lockfile
 
-# TEMP secret for asset build
-ARG SECRET_KEY_BASE=secret_for_build
+# TEMP key for assets
+ARG SECRET_KEY_BASE=temporary_for_assets
 
-# Precompile assets
 RUN bundle exec rails locale:generate \
  && bundle exec i18n export \
  && bundle exec rails assets:precompile
 
 EXPOSE 3000
 
-# Run the app
-USER nightspring:users
 CMD bundle exec rails server -b 0.0.0.0 -p $PORT
