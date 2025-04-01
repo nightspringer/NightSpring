@@ -1,5 +1,4 @@
 # Base image
-# Base image
 FROM registry.opensuse.org/opensuse/leap:15.5
 
 LABEL org.opencontainers.image.title="NightSpring (production)"
@@ -37,14 +36,17 @@ RUN useradd -m nightspring \
  && install -o nightspring -g users -d /opt/nightspring/bundle
 
 WORKDIR /opt/nightspring/app
+
+# COPY as root, then fix permissions
+COPY . .
+RUN chown -R nightspring:users .
+
 USER nightspring:users
 
-COPY . .
-
-# Create writable dirs (Render-safe)
+# Ensure writable dirs
 RUN mkdir -p tmp log
 
-# Install
+# Install dependencies
 RUN bundle config set without 'development test' \
  && bundle config set path '/opt/nightspring/bundle' \
  && bundle install --jobs=$(nproc) \
