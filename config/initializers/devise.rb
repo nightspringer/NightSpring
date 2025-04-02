@@ -10,7 +10,7 @@ Devise.setup do |config|
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class
   # with default "from" parameter.
-  config.mailer_sender = "#{APP_CONFIG['site_name']} <#{APP_CONFIG['email_from']}>"
+  config.mailer_sender = "#{ENV.fetch('APP_SITE_NAME', 'NightSpring')} <#{ENV.fetch('APP_EMAIL_FROM', 'noreply@nightspring.net')}>"
 
   # Configure the class responsible to send e-mails.
   config.mailer = 'Retromail'
