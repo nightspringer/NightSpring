@@ -1,35 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Whoops?</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#f0edf4">
+  <title>NightSpring - 422</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fcd6e6">
   <style>
     :root {
-      --primary: #5e35b1;
-      --muted: 108, 117, 125;
-      --background: #f0edf4;
-    }
-
-    *, *:before, *:after {
-      box-sizing: border-box;
-    }
-
-    a {
-      color: var(--primary);
-      text-decoration: none;
+      --primary: #ec6ea5;
+      --muted: 120, 80, 95;
+      --background: #fdeaf2;
     }
 
     body {
-      padding: 2rem 1rem 1rem 1rem;
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
       background-color: var(--background);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 2rem 1rem;
     }
 
     .text-primary {
       color: var(--primary);
+      font-weight: bold;
     }
 
     .text-muted {
@@ -40,127 +32,44 @@
       text-align: center;
     }
 
-    .font-weight-bold {
-      font-weight: bold;
-    }
-
-    .d-none {
-      display: none !important;
-    }
-
-    .links {
-      padding: 0;
-    }
-
-    .links li {
-      display: inline-block;
-    }
-
-    .links li:not(:last-child):after {
-      content: ' • ';
-    }
-
-    .mb-0 {
-      margin-bottom: 0;
-    }
-
-    .mt-0 {
-      margin-top: 0;
-    }
-
-    .error-artwork-container {
-      display:flex;
-      justify-content: center;
-      max-width: 100%;
-    }
-
-    .error-artwork-container picture {
+    img.logo {
+      max-width: 300px;
+      margin: 0 auto 2rem;
       display: block;
-      max-width: 100%;
     }
 
-    .error-artwork-container picture img {
-      max-width: 100%;
-    }
-
-    .error-text-container {
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
       text-align: center;
     }
 
-    @media (min-width: 768px) {
-      body {
-        padding: 3rem 1rem 1rem 1rem;
-      }
-
-      .error-artwork-container picture {
-        width: 576px;
-      }
+    .links a {
+      color: var(--primary);
+      margin: 0 0.5rem;
+      text-decoration: none;
     }
 
-    @media (min-width: 992px) {
-      body {
-        padding: 5rem 1rem 3rem 1rem;
-      }
-
-      .error {
-        display: flex;
-        justify-content: center;
-      }
-
-      .error-text-container {
-        align-self: center;
-        text-align: left;
-      }
+    .back {
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <div class="error">
-    <div class="error-artwork-container">
-      <picture>
-        <source
-          srcset="/images/errors/small/404.png 576w,
-                  /images/errors/medium/404.png 768w,
-                  /images/errors/original/404.png 1200w">
-        <img src="/images/errors/small/404.png" alt="A raccoon peeking out of a bin, looking confused" />
-      </picture>
+  <div class="container">
+    <img src="/nightspring_logo_clean.png.png" alt="NightSpring Logo" class="logo" />
+    <h1><span class="text-primary">422</span> <span class="text-muted">Unprocessable Entity</span></h1>
+    <p>Something went wrong. Please try again.</p>
+    <p class="text-muted"><i>If the issue continues, contact us:</i></p>
+    <div class="links">
+      <a href="https://floss.social/@retrospring">Mastodon</a> •
+      <a href="https://twitter.com/retrospring">Twitter</a> •
+      <a href="https://github.com/nightspringer/NightSpring">GitHub</a>
     </div>
-    <div class="error-text-container">
-      <h1>
-        <span class="text-primary font-weight-bold">422</span>
-        <small class="text-muted">Unprocessable Entity</small>
-      </h1>
-      <p>
-        Whatever your browser tried to send us, it was not right.
-      </p>
-      <p class="mb-0">
-        <i>Please retry what you just did.  If the problem persists, don't hesitate to contact us:</i>
-      </p>
-      <ul class="links mt-0">
-        <li>
-          <a href="https://floss.social/@retrospring">Mastodon: @retrospring@floss.social</a>
-        </li>
-        <li>
-          <a href="https://twitter.com/Retrospring">Twitter: @Retrospring</a>
-        </li>
-        <li>
-          <a href="https://github.com/Retrospring/retrospring">GitHub</a>
-        </li>
-      </ul>
-      <ul class="links">
-        <li class="d-none js-back-link">
-          <a href="javascript:history.back()">Back</a>
-        </li>
-        <li>
-          <a href="/">Home</a>
-        </li>
-      </ul>
+    <div class="back">
+      <a href="javascript:history.back()">Back</a> |
+      <a href="/">Home</a>
     </div>
   </div>
-  <script>
-    if (window.history.length > 0) {
-      document.querySelector('.js-back-link').classList.toggle('d-none');
-    }
-  </script>
 </body>
 </html>
