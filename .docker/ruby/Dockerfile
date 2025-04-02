@@ -1,56 +1,90 @@
-FROM ruby:3.2
+# ---------------------------
+# BASE RUBY IMAGE
+# ---------------------------
+FROM ruby:3.2.3-slim
 
-USER root
+# ---------------------------
+# SETUP ENV & METADATA
+# ---------------------------
+ENV RAILS_ENV=production \
+    RAILS_LOG_TO_STDOUT=true \
+    SITE_NAME=NightSpring \
+    APP_NAME=NightSpring \
+    APP_TITLE=NightSpring \
+    HOSTNAME=nightspring.net \
+    TZ=Etc/UTC
 
 ARG UID=1000
 ARG GID=1000
 ARG NODE_MAJOR=16
+ARG BUNDLER_VERSION=2.5.5
 
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+# ---------------------------
+# INSTALL SYSTEM DEPENDENCIES
+# ---------------------------
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+  ca-certificates curl gnupg tzdata build-essential git \
+  libpq-dev postgresql-client libxml2-dev libxslt1-dev \
+  libmagickwand-dev imagemagick libidn11-dev libvips \
+  && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update -qq \
-    && apt-get install -y ca-certificates curl gnupg \
-    && mkdir -p /etc/apt/keyrings \
-    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+# ---------------------------
+# INSTALL NODE + YARN
+# ---------------------------
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+ && echo "deb https://dl.yarnpkg.com/debian stable main" > /etc/apt/sources.list.d/yarn.list \
+ && mkdir -p /etc/apt/keyrings \
+ && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+ && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
+ && apt-get update -qq \
+ && apt-get install -y --no-install-recommends nodejs yarn \
+ && rm -rf /var/lib/apt/lists/*
 
-RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
-
-RUN apt-get update -qq \
-    && apt-get install -y --no-install-recommends build-essential \
-    libpq-dev postgresql-client \
-    libxml2-dev libxslt1-dev \
-    libmagickwand-dev imagemagick \
-    libidn11-dev \
-    nodejs \
-    yarn \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN mkdir /app \
-    && mkdir /cache
-WORKDIR /app
-
+# ---------------------------
+# CREATE APP USER & FOLDERS
+# ---------------------------
 RUN addgroup --gid ${GID} app \
-	&& adduser --gecos "" --disabled-password --shell /bin/bash --uid ${UID} --gid ${GID} app \
-	&& chown "${UID}:${GID}" -R /app/ \
-    && chown "${UID}:${GID}" -R /cache/
-
-COPY .docker/entrypoint.sh /usr/bin/
-RUN chmod +x /usr/bin/entrypoint.sh
+ && adduser --gecos "" --disabled-password --shell /bin/bash --uid ${UID} --gid ${GID} app \
+ && mkdir -p /app /cache && chown -R app:app /app /cache
 
 USER app:app
+WORKDIR /app
 
-ADD Gemfile* /app/
-RUN bundle install --jobs=$(nproc)
-RUN gem install ruby-debug-ide
+# ---------------------------
+# INSTALL BUNDLER & DEPENDENCIES
+# ---------------------------
+COPY Gemfile* ./
+RUN gem install bundler:$BUNDLER_VERSION \
+ && bundle config set without 'development test' \
+ && bundle install --jobs=$(nproc)
 
-ADD package.json /app/
-ADD yarn.lock /app/
-RUN yarn install
+# ---------------------------
+# INSTALL YARN PACKAGES
+# ---------------------------
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --production
 
-COPY . /app
+# ---------------------------
+# COPY APP SOURCE
+# ---------------------------
+COPY --chown=app:app . .
 
-ENTRYPOINT ["entrypoint.sh"]
+# Patch DB config if needed
+RUN cp config/database.yml.postgres config/database.yml || true
+
+# ---------------------------
+# PRECOMPILE ASSETS
+# ---------------------------
+ARG SECRET_KEY_BASE=temporary_for_assets
+ENV SECRET_KEY_BASE=$SECRET_KEY_BASE
+
+RUN bundle exec rails locale:generate \
+ && bundle exec i18n export \
+ && bundle exec rails assets:precompile
+
+# ---------------------------
+# FINAL SETTINGS
+# ---------------------------
 EXPOSE 3000
-
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["rails", "server", "-b", "0.0.0.0"]
