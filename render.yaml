@@ -92,8 +92,8 @@ services:
     branch: staging
     healthCheckPath: /
     buildFilter:
-      branches:
-        only: [ staging ]
+      paths:
+        - "**/*"
     startCommand: >
       bundle exec rails db:migrate &&
       bundle exec rails assets:precompile &&
@@ -155,7 +155,7 @@ services:
       - key: TZ
         value: UTC
 
-  # === SHARED REDIS ==============================
+# === SHARED REDIS ==============================
   - type: redis
     name: nightspring-redis
     plan: free
