@@ -6,14 +6,14 @@ After=network.target
 
 [Service]
 Type=simple
-User=retrospring
-WorkingDirectory=/home/retrospring/retrospring
+User=nightspringer
+WorkingDirectory=/home/nightspringer/nightspring
 Environment="RAILS_ENV=production"
 Environment="PORT=3000"
-ExecStart=/home/retrospring/.rbenv/shims/bundle exec puma
+ExecStart=/home/nightspring/.rbenv/shims/bundle exec puma
 TimeoutSec=15
 Restart=always
-WorkingDirectory=/home/retrospring/retrospring
+WorkingDirectory=/home/nightspringer/nightspring
 
 [Install]
 WantedBy=multi-user.target
