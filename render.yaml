@@ -1,4 +1,5 @@
 services:
+  # === PRODUCTION ==============================
   - type: web
     name: nightspring
     repo: https://github.com/nightspringer/NightSpring
@@ -6,10 +7,19 @@ services:
     dockerfilePath: Containerfile
     plan: free
     region: ohio
+    branch: main
+    healthCheckPath: /
+    buildFilter:
+      paths:
+        - "**/*"
     startCommand: >
-      bundle exec rails db:migrate && bundle exec rails server -b 0.0.0.0 -p $PORT
+      bundle exec rails db:migrate &&
+      bundle exec rails assets:precompile &&
+      bundle exec rails server -b 0.0.0.0 -p $PORT
     envVars:
       - key: RAILS_ENV
+        value: production
+      - key: NODE_ENV
         value: production
       - key: SECRET_KEY_BASE
         generateValue: true
@@ -22,21 +32,130 @@ services:
           name: nightspring-redis
           type: redis
           property: connectionString
+
+      # Mailer
+      - key: SMTP_USERNAME
+        value: noreply@nightspring.net
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        value: "NightSpring <noreply@nightspring.net>"
+      - key: SMTP_REPLY_TO
+        value: contact@nightspring.net
+      - key: SMTP_RETURN_PATH
+        value: contact@nightspring.net
+
+      # Branding
+      - key: SITE_NAME
+        value: NightSpring
+      - key: APP_NAME
+        value: NightSpring
+      - key: APP_TITLE
+        value: NightSpring
+      - key: HOSTNAME
+        value: nightspring.net
+      - key: MAILER_HOST
+        value: nightspring.net
+
+      # Theming (Production)
+      - key: THEME_PRIMARY_COLOR
+        value: "#ec4899"
+      - key: THEME_ACCENT_COLOR
+        value: "#a855f7"
+      - key: THEME_BACKGROUND
+        value: "#ffffff"
+      - key: THEME_DARK_MODE
+        value: false
+
+      # Performance
+      - key: RAILS_LOG_TO_STDOUT
+        value: true
       - key: RAILS_LOG_LEVEL
         value: debug
       - key: RAILS_SERVE_STATIC_FILES
         value: true
-      - key: NODE_ENV
-        value: production
       - key: BUNDLE_DEPLOYMENT
         value: true
       - key: BUNDLE_WITHOUT
         value: "development:test"
+      - key: TZ
+        value: UTC
+
+  # === STAGING ==============================
+  - type: web
+    name: nightspring-staging
+    repo: https://github.com/nightspringer/NightSpring
+    runtime: docker
+    dockerfilePath: Containerfile
+    plan: free
+    region: ohio
+    branch: staging
+    healthCheckPath: /
+    buildFilter:
+      branches:
+        only: [ staging ]
+    startCommand: >
+      bundle exec rails db:migrate &&
+      bundle exec rails assets:precompile &&
+      bundle exec rails server -b 0.0.0.0 -p $PORT
+    envVars:
+      - key: RAILS_ENV
+        value: staging
+      - key: NODE_ENV
+        value: production
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nightspring-db-staging
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: nightspring-redis
+          type: redis
+          property: connectionString
+
+      # Mailer
+      - key: SMTP_USERNAME
+        value: noreply@nightspring.net
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: MAILER_HOST
+        value: nightspring-staging.onrender.com
+
+      # Branding
       - key: SITE_NAME
+        value: NightSpring (Staging)
+      - key: APP_NAME
         value: NightSpring
-      - key: HTTPS
+      - key: HOSTNAME
+        value: nightspring-staging.onrender.com
+
+      # Theming (Staging)
+      - key: THEME_PRIMARY_COLOR
+        value: "#eab308"
+      - key: THEME_ACCENT_COLOR
+        value: "#22d3ee"
+      - key: THEME_BACKGROUND
+        value: "#f0f0f0"
+      - key: THEME_DARK_MODE
         value: true
 
+      # Performance
+      - key: RAILS_LOG_TO_STDOUT
+        value: true
+      - key: RAILS_LOG_LEVEL
+        value: debug
+      - key: RAILS_SERVE_STATIC_FILES
+        value: true
+      - key: BUNDLE_DEPLOYMENT
+        value: true
+      - key: BUNDLE_WITHOUT
+        value: "development:test"
+      - key: TZ
+        value: UTC
+
+  # === SHARED REDIS ==============================
   - type: redis
     name: nightspring-redis
     plan: free
@@ -45,6 +164,10 @@ services:
       - source: 0.0.0.0/0
         description: allow all
 
+# === DATABASES ==============================
 databases:
   - name: nightspring-db
+    region: ohio
+
+  - name: nightspring-db-staging
     region: ohio
