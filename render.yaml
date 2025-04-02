@@ -32,6 +32,10 @@ services:
         value: true
       - key: BUNDLE_WITHOUT
         value: "development:test"
+      - key: SITE_NAME
+        value: NightSpring
+      - key: HTTPS
+        value: true
 
   - type: redis
     name: nightspring-redis
