@@ -7,7 +7,7 @@ After=network.target
 [Service]
 Type=simple
 User=retrospring
-WorkingDirectory=/home/retrospring/retrospring
+WorkingDirectory=/home/nightspring/nightspring
 Environment="RAILS_ENV=production"
 ExecStart=/home/retrospring/.rbenv/shims/bundle exec sidekiq -e production -C ./config/sidekiq.yml
 TimeoutSec=15
