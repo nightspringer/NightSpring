@@ -1,8 +1,7 @@
 # config/initializers/15_sidekiq.rb
 
-unless defined?(Rails::Server) || defined?(Sidekiq::CLI)
-  return
-end
+# Skip during non-server/sidekiq contexts (e.g. assets:precompile, rake, console)
+return unless defined?(Rails::Server) || defined?(Sidekiq::CLI)
 
 require "rpush/daemon"
 require "rpush/daemon/store/active_record"
@@ -12,6 +11,7 @@ redis_url = ENV.fetch("REDIS_URL") { APP_CONFIG["redis_url"] }
 
 Sidekiq.configure_server do |config|
   config.redis = { url: redis_url }
+
   Rpush.config.push = true
   Rpush::Daemon.store = Rpush::Daemon::Store::ActiveRecord.new
   Rpush::Daemon.common_init
