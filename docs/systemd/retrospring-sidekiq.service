@@ -6,13 +6,13 @@ After=network.target
 
 [Service]
 Type=simple
-User=retrospring
-WorkingDirectory=/home/nightspring/nightspring
+User=nightspringer
+WorkingDirectory=/home/nightspringer/nightspring
 Environment="RAILS_ENV=production"
-ExecStart=/home/retrospring/.rbenv/shims/bundle exec sidekiq -e production -C ./config/sidekiq.yml
+ExecStart=/home/nightspring/.rbenv/shims/bundle exec sidekiq -e production -C ./config/sidekiq.yml
 TimeoutSec=15
 Restart=always
-WorkingDirectory=/home/retrospring/retrospring
+WorkingDirectory=/home/nightspringer/nightspring
 
 [Install]
 WantedBy=multi-user.target
