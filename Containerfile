@@ -14,39 +14,37 @@ ENV APP_NAME=NightSpring
 ENV APP_TITLE=NightSpring
 ENV HOSTNAME=nightspring.net
 
-# Install Node & Yarn securely
+# Securely add Node.js 20 and Yarn repos
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
   curl gnupg2 ca-certificates lsb-release
 
-ARG NODE_VERSION=20
-...
-RUN curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
- && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+ && echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
 
-# Install system packages
+# Install full system build dependencies
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
   build-essential libpq-dev libvips libcurl4-openssl-dev \
-  libffi-dev nodejs yarn imagemagick tzdata libidn11-dev \
+  libffi-dev nodejs yarn imagemagick tzdata libidn11-dev git \
   && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# App directory
 WORKDIR /app
 
-# Copy Gemfiles & install bundler and gems
+# Install bundler and gems
 COPY Gemfile* ./
 RUN gem install bundler:$BUNDLER_VERSION \
  && bundle config set without 'development test' \
  && bundle install --jobs=$(nproc)
 
-# Copy full source code and JS dependencies
+# Copy app and install JS deps
 COPY . .
 RUN yarn install --immutable
 
-# Patch database config (skip if already present)
+# Patch database config safely
 RUN cp config/database.yml.postgres config/database.yml || true
 
-# Asset & i18n precompile
+# Compile assets and export locales
 ARG SECRET_KEY_BASE=temporary_for_assets
 ENV SECRET_KEY_BASE=$SECRET_KEY_BASE
 RUN bundle exec rails locale:generate \
@@ -54,7 +52,7 @@ RUN bundle exec rails locale:generate \
  && bundle exec rails assets:precompile
 
 # ---------------------------
-# STAGE 2: Final Runtime Image
+# STAGE 2: Runtime Image
 # ---------------------------
 FROM ruby:3.2.3-slim
 
@@ -66,20 +64,20 @@ ENV APP_NAME=NightSpring
 ENV APP_TITLE=NightSpring
 ENV HOSTNAME=nightspring.net
 
-# Install runtime system packages
+# Runtime dependencies only
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
   libpq5 libvips imagemagick curl git libidn12 tzdata \
   && rm -rf /var/lib/apt/lists/*
 
-# Create app user and directory
+# Create app user
 RUN useradd -m -d /app nightspring
 WORKDIR /app
 
-# Copy compiled app and gems
+# Copy built app and gems from builder
 COPY --from=builder /app /app
 COPY --from=builder /usr/local/bundle /usr/local/bundle
 
-# Fix file permissions
+# Ownership
 RUN chown -R nightspring:nightspring /app
 USER nightspring
 
@@ -88,5 +86,5 @@ HEALTHCHECK CMD curl -f http://localhost:$PORT || exit 1
 
 EXPOSE 3000
 
-# Launch the server
+# Run the Rails app
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "$PORT"]
