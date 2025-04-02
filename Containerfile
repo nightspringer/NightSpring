@@ -1,68 +1,80 @@
-# Base image
-FROM registry.opensuse.org/opensuse/leap:15.5
+# ---------------------------
+# STAGE 1: Builder
+# ---------------------------
+FROM ruby:3.2.3-slim AS builder
 
-LABEL org.opencontainers.image.title="NightSpring (production)"
-LABEL org.opencontainers.image.description="Image to run NightSpring in production."
-LABEL org.opencontainers.image.vendor="NightSpring"
-LABEL org.opencontainers.image.url="https://nightspring.net"
-
-ARG RUBY_VERSION=3.2.3
-ARG RUBY_INSTALL_VERSION=0.9.3
 ARG BUNDLER_VERSION=2.5.5
+ARG NODE_VERSION=16
 
 ENV RAILS_ENV=production
 ENV RAILS_LOG_TO_STDOUT=true
+ENV SITE_NAME=NightSpring
+ENV APP_NAME=NightSpring
+ENV APP_TITLE=NightSpring
+ENV HOSTNAME=nightspring.net
 
-# Dependencies
-RUN zypper addrepo https://download.opensuse.org/repositories/devel:languages:nodejs/15.5/devel:languages:nodejs.repo \
- && zypper --gpg-auto-import-keys refresh \
- && zypper install -y \
-    automake gcc gdbm-devel gzip libffi-devel libopenssl-devel libyaml-devel \
-    jemalloc-devel make ncurses-devel readline-devel tar xz zlib-devel curl \
-    gcc-c++ git libidn-devel nodejs16 npm16 postgresql-devel ImageMagick \
- && zypper clean -a \
- && npm install -g yarn
+# System dependencies
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+  build-essential libpq-dev curl git libvips libcurl4-openssl-dev \
+  libffi-dev nodejs yarn imagemagick tzdata \
+  && rm -rf /var/lib/apt/lists/*
 
-# Ruby
-RUN curl -Lo ruby-install-${RUBY_INSTALL_VERSION}.tar.gz https://github.com/postmodern/ruby-install/archive/v${RUBY_INSTALL_VERSION}.tar.gz \
- && tar xvf ruby-install-${RUBY_INSTALL_VERSION}.tar.gz \
- && (cd ruby-install-${RUBY_INSTALL_VERSION} && make install) \
- && ruby-install --no-install-deps --cleanup --system ruby ${RUBY_VERSION} -- --disable-install-rdoc --with-jemalloc \
- && gem install bundler:${BUNDLER_VERSION}
+# Create app directory
+WORKDIR /app
 
-# App setup
-RUN useradd -m nightspring \
- && install -o nightspring -g users -d /opt/nightspring/app \
- && install -o nightspring -g users -d /opt/nightspring/bundle
+# Add Gemfiles and install bundler
+COPY Gemfile* ./
+RUN gem install bundler:$BUNDLER_VERSION \
+ && bundle config set without 'development test' \
+ && bundle install --jobs=$(nproc)
 
-WORKDIR /opt/nightspring/app
-
-# COPY as root, then fix permissions
+# Copy source code and install JS deps
 COPY . .
-RUN chown -R nightspring:users .
+RUN yarn install --frozen-lockfile
 
-USER nightspring:users
-
-# Ensure writable dirs
-RUN mkdir -p tmp log
-
-# Install dependencies
-RUN bundle config set without 'development test' \
- && bundle config set path '/opt/nightspring/bundle' \
- && bundle install --jobs=$(nproc) \
- && yarn install --frozen-lockfile
-
-# TEMP key for assets
-ARG SECRET_KEY_BASE=temporary_for_assets
-
-# Copy working DB config for precompile
+# Patch DB config (DO NOT overwrite app branding files)
 RUN cp config/database.yml.postgres config/database.yml
 
-# Precompile
+# Asset & i18n precompile
+ARG SECRET_KEY_BASE=temporary_for_assets
+ENV SECRET_KEY_BASE=$SECRET_KEY_BASE
 RUN bundle exec rails locale:generate \
  && bundle exec i18n export \
  && bundle exec rails assets:precompile
 
+# ---------------------------
+# STAGE 2: Final Runtime Image
+# ---------------------------
+FROM ruby:3.2.3-slim
+
+ENV RAILS_ENV=production
+ENV RAILS_LOG_TO_STDOUT=true
+ENV SITE_NAME=NightSpring
+ENV APP_NAME=NightSpring
+ENV APP_TITLE=NightSpring
+ENV HOSTNAME=nightspring.net
+
+# System packages
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+  libpq5 libvips imagemagick curl git \
+  && rm -rf /var/lib/apt/lists/*
+
+# Create app user and working dir
+RUN useradd -m -d /app nightspring
+WORKDIR /app
+
+# Copy precompiled app and gems
+COPY --from=builder /app /app
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+
+# Fix permissions
+RUN chown -R nightspring:nightspring /app
+USER nightspring
+
+# Healthcheck for Render
+HEALTHCHECK CMD curl -f http://localhost:$PORT || exit 1
+
 EXPOSE 3000
 
-CMD bundle exec rails server -b 0.0.0.0 -p $PORT
+# Final start command
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "$PORT"]
