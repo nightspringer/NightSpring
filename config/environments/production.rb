@@ -10,26 +10,18 @@ Rails.application.configure do
   config.consider_all_requests_local       = false
   config.action_controller.perform_caching = true
 
-  # Serve static files
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
-
-  # Precompiled assets only
   config.assets.compile = false
-
-  # Enforce HTTPS
   config.force_ssl = true
 
-  # Allowed domains
   config.hosts << "nightspring.net"
   config.hosts << "nightspring.onrender.com"
   config.hosts += ENV.fetch("ALLOWED_HOSTS", "").split(",").map(&:strip)
 
   config.log_level = ENV.fetch("LOG_LEVEL", "info").to_sym
   config.log_tags = [:request_id]
-
   config.lograge.enabled = true
 
-  # Redis cache store
   cache_redis_url = ENV.fetch("CACHE_REDIS_URL", nil)
   if cache_redis_url.present?
     config.cache_store = :redis_cache_store, {
@@ -43,7 +35,6 @@ Rails.application.configure do
     }
   end
 
-  # Sidekiq / job queue prefix
   config.active_job.queue_name_prefix = "nightspring_#{Rails.env}"
 
   config.action_mailer.perform_caching = false
@@ -51,22 +42,20 @@ Rails.application.configure do
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_deliveries = true
 
-  # Default mail headers
   config.action_mailer.default_options = {
     from: ENV['SMTP_FROM'] || 'NightSpring <noreply@nightspring.net>',
     reply_to: ENV['SMTP_REPLY_TO'] || 'contact@nightspring.net',
     return_path: ENV['SMTP_RETURN_PATH'] || 'contact@nightspring.net'
   }.compact
 
-  # Links in email (e.g. confirmation, reset)
   config.action_mailer.default_url_options = {
     host: ENV.fetch("MAILER_HOST", "nightspring.net"),
     protocol: "https"
   }
 
-  # STARTTLS behavior
   enable_starttls = true
   enable_starttls_auto = true
+
   case ENV['SMTP_ENABLE_STARTTLS']
   when 'always' then enable_starttls = true
   when 'never' then enable_starttls = false
@@ -75,22 +64,24 @@ Rails.application.configure do
     enable_starttls_auto = ENV['SMTP_ENABLE_STARTTLS_AUTO'] != 'false'
   end
 
-  # ✅ Safe SMTP settings for build-time & runtime
+  # Avoid errors during asset precompile (no ENV in build context)
   if ENV['SMTP_USERNAME'].present? && ENV['SMTP_PASSWORD'].present?
-    config.action_mailer.smtp_settings = {
-      address: 'mail.privateemail.com',
-      port: 587,
-      domain: 'nightspring.net',
-      authentication: :login,
-      user_name: ENV['SMTP_USERNAME'],
-      password: ENV['SMTP_PASSWORD'],
-      enable_starttls: enable_starttls,
-      enable_starttls_auto: enable_starttls_auto,
-      openssl_verify_mode: 'none',
-      tls: ENV['SMTP_TLS'] == 'true',
-      ssl: ENV['SMTP_SSL'] == 'true',
-      read_timeout: 20
-    }
+    unless Rails.const_defined?(:Console) || Rails.env.test? || defined?(Rake)
+      config.action_mailer.smtp_settings = {
+        address: 'mail.privateemail.com',
+        port: 587,
+        domain: 'nightspring.net',
+        authentication: :login,
+        user_name: ENV['SMTP_USERNAME'],
+        password: ENV['SMTP_PASSWORD'],
+        enable_starttls: enable_starttls,
+        enable_starttls_auto: enable_starttls_auto,
+        openssl_verify_mode: 'none',
+        tls: ENV['SMTP_TLS'] == 'true',
+        ssl: ENV['SMTP_SSL'] == 'true',
+        read_timeout: 20
+      }
+    end
   end
 
   config.i18n.fallbacks = true
