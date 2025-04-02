@@ -54,9 +54,9 @@ ENV APP_NAME=NightSpring
 ENV APP_TITLE=NightSpring
 ENV HOSTNAME=nightspring.net
 
-# System packages (added libidn11 runtime just in case)
+# # System packages
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
-  libpq5 libvips imagemagick curl git libidn11 \
+  libpq5 libvips imagemagick curl git libidn12 \
   && rm -rf /var/lib/apt/lists/*
 
 # Create app user and working dir
