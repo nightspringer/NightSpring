@@ -4,12 +4,13 @@ USER root
 
 ARG UID=1000
 ARG GID=1000
-ARG NODE_MAJOR=16
+ARG NODE_MAJOR=20
 
 # Add Node.js and Yarn secure repos
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     curl gnupg2 ca-certificates lsb-release
 
+# Add Node.js and Yarn secure repos
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
  && echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list
