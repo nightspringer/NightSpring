@@ -55,6 +55,10 @@ RUN bundle config set without 'development test' \
 # TEMP key for assets
 ARG SECRET_KEY_BASE=temporary_for_assets
 
+# Copy working DB config for precompile
+RUN cp config/database.yml.postgres config/database.yml
+
+# Precompile
 RUN bundle exec rails locale:generate \
  && bundle exec i18n export \
  && bundle exec rails assets:precompile
