@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module NightSpring
+module Retrospring
   module Config
     module_function
 
