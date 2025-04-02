@@ -25,8 +25,10 @@ module Retrospring
 
     config.active_job.queue_adapter = :sidekiq
 
-    config.i18n.default_locale = "en"
+    # Locale settings
+    config.i18n.default_locale = :en
     config.i18n.fallbacks = [I18n.default_locale]
+    config.i18n.available_locales = [:en, :fil]
     config.i18n.enforce_available_locales = false
 
     config.action_dispatch.rescue_responses["Pundit::NotAuthorizedError"] = :forbidden
