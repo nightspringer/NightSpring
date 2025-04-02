@@ -4,7 +4,7 @@
 FROM ruby:3.2.3-slim AS builder
 
 ARG BUNDLER_VERSION=2.5.5
-ARG NODE_VERSION=16
+ARG NODE_VERSION=20
 
 ENV RAILS_ENV=production
 ENV RAILS_LOG_TO_STDOUT=true
@@ -18,7 +18,9 @@ ENV HOSTNAME=nightspring.net
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
   curl gnupg2 ca-certificates lsb-release
 
-RUN curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
+ARG NODE_VERSION=20
+...
+RUN curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash -
  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
  && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
