@@ -44,12 +44,10 @@ RUN yarn install --immutable
 # Patch database config safely
 RUN cp config/database.yml.postgres config/database.yml || true
 
-# Compile assets and export locales
+# Precompile assets only (skip locales)
 ARG SECRET_KEY_BASE=temporary_for_assets
 ENV SECRET_KEY_BASE=$SECRET_KEY_BASE
-RUN bundle exec rails locale:generate \
- && bundle exec i18n export \
- && bundle exec rails assets:precompile
+RUN bundle exec rails assets:precompile
 
 # ---------------------------
 # STAGE 2: Runtime Image
