@@ -5,13 +5,20 @@ USER root
 ARG UID=1000
 ARG GID=1000
 ARG NODE_MAJOR=20
+ARG BUNDLER_VERSION=2.5.5
 
 # Set consistent timezone
 ENV TZ=UTC
+ENV RAILS_ENV=production
+ENV RAILS_LOG_TO_STDOUT=true
+ENV SITE_NAME=NightSpring
+ENV APP_NAME=NightSpring
+ENV APP_TITLE=NightSpring
+ENV HOSTNAME=nightspring.net
 
 # Add Node.js and Yarn securely
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
-    curl gnupg2 ca-certificates lsb-release
+  curl gnupg2 ca-certificates lsb-release
 
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
@@ -19,10 +26,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash - \
 
 # Install system dependencies
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
-    build-essential libpq-dev postgresql-client libxml2-dev libxslt1-dev \
-    libmagickwand-dev imagemagick libidn11-dev tzdata \
-    nodejs yarn git \
-    && rm -rf /var/lib/apt/lists/*
+  build-essential libpq-dev postgresql-client libxml2-dev libxslt1-dev \
+  libmagickwand-dev imagemagick libidn11-dev tzdata \
+  nodejs yarn git \
+  && rm -rf /var/lib/apt/lists/*
 
 # App directory
 RUN mkdir -p /app /cache
@@ -42,7 +49,7 @@ USER app:app
 
 # Install Ruby gems
 COPY Gemfile* ./
-RUN gem install bundler:2.5.5 \
+RUN gem install bundler:$BUNDLER_VERSION \
  && bundle config set without 'development test' \
  && bundle install --jobs=$(nproc)
 
@@ -50,10 +57,10 @@ RUN gem install bundler:2.5.5 \
 COPY package.json yarn.lock ./
 RUN yarn install --immutable
 
-# Copy the full app
+# Copy the full app source
 COPY . .
 
-# Port & boot
+# Expose port & start server
 EXPOSE 3000
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["rails", "server", "-b", "0.0.0.0"]
