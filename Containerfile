@@ -6,23 +6,23 @@ FROM ruby:3.2.3-slim AS builder
 ARG BUNDLER_VERSION=2.5.5
 ARG NODE_VERSION=16
 
-ENV RAILS_ENV=production \
-    RAILS_LOG_TO_STDOUT=true \
-    TZ=UTC \
-    SITE_NAME=NightSpring \
-    APP_NAME=NightSpring \
-    APP_TITLE=NightSpring \
-    HOSTNAME=nightspring.net
+ENV RAILS_ENV=production
+ENV RAILS_LOG_TO_STDOUT=true
+ENV TZ=UTC
+ENV SITE_NAME=NightSpring
+ENV APP_NAME=NightSpring
+ENV APP_TITLE=NightSpring
+ENV HOSTNAME=nightspring.net
 
-# Add secure Node.js & Yarn repos
+# Install Node & Yarn securely
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
   curl gnupg2 ca-certificates lsb-release
 
 RUN curl -sL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
- && echo "deb https://dl.yarnpkg.com/debian stable main" > /etc/apt/sources.list.d/yarn.list
+ && echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
-# System deps
+# Install system packages
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
   build-essential libpq-dev libvips libcurl4-openssl-dev \
   libffi-dev nodejs yarn imagemagick tzdata libidn11-dev \
@@ -31,20 +31,20 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
 # Set working directory
 WORKDIR /app
 
-# Install gems
+# Copy Gemfiles & install bundler and gems
 COPY Gemfile* ./
 RUN gem install bundler:$BUNDLER_VERSION \
  && bundle config set without 'development test' \
  && bundle install --jobs=$(nproc)
 
-# Copy full source + install JS
+# Copy full source code and JS dependencies
 COPY . .
-RUN yarn install --frozen-lockfile
+RUN yarn install --immutable
 
-# Copy default DB config if missing
+# Patch database config (skip if already present)
 RUN cp config/database.yml.postgres config/database.yml || true
 
-# Precompile assets and export locales
+# Asset & i18n precompile
 ARG SECRET_KEY_BASE=temporary_for_assets
 ENV SECRET_KEY_BASE=$SECRET_KEY_BASE
 RUN bundle exec rails locale:generate \
@@ -56,28 +56,28 @@ RUN bundle exec rails locale:generate \
 # ---------------------------
 FROM ruby:3.2.3-slim
 
-ENV RAILS_ENV=production \
-    RAILS_LOG_TO_STDOUT=true \
-    TZ=UTC \
-    SITE_NAME=NightSpring \
-    APP_NAME=NightSpring \
-    APP_TITLE=NightSpring \
-    HOSTNAME=nightspring.net
+ENV RAILS_ENV=production
+ENV RAILS_LOG_TO_STDOUT=true
+ENV TZ=UTC
+ENV SITE_NAME=NightSpring
+ENV APP_NAME=NightSpring
+ENV APP_TITLE=NightSpring
+ENV HOSTNAME=nightspring.net
 
-# Runtime dependencies
+# Install runtime system packages
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
   libpq5 libvips imagemagick curl git libidn12 tzdata \
   && rm -rf /var/lib/apt/lists/*
 
-# Create app user and working dir
+# Create app user and directory
 RUN useradd -m -d /app nightspring
 WORKDIR /app
 
-# Copy app and gems
+# Copy compiled app and gems
 COPY --from=builder /app /app
 COPY --from=builder /usr/local/bundle /usr/local/bundle
 
-# Permissions
+# Fix file permissions
 RUN chown -R nightspring:nightspring /app
 USER nightspring
 
@@ -86,4 +86,5 @@ HEALTHCHECK CMD curl -f http://localhost:$PORT || exit 1
 
 EXPOSE 3000
 
+# Launch the server
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "$PORT"]
