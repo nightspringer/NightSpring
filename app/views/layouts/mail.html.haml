@@ -3,16 +3,16 @@
     :css
       body {
         font-size: 16px;
-        margin-top: 0px;
-        margin-bottom: 0px;
+        margin: 0;
         font-family: Arial, sans-serif;
+        background-color: #fdddec;
       }
       p {
-        margin: 0px;
-        padding: 0px;
+        margin: 0;
+        padding: 0;
       }
   %body
-    %table{ cellpadding: 0, cellspacing: 0, border: 5, bordercolor: '#5e35b1', bgcolor: '#5e35b1', style: 'font-size:0px;', align: 'center', width: '630' }
+    %table{ cellpadding: 0, cellspacing: 0, border: 5, bordercolor: '#e4558e', bgcolor: '#e4558e', style: 'font-size:0px;', align: 'center', width: '630' }
       %tbody
         %tr
           %td{ style: 'padding:5px 10px;', align: 'center' }
@@ -24,11 +24,11 @@
             %font{ color: '#000000', size: 4, face: 'Arial, sans-serif' }
               = yield
         %tr
-          %td{ bgcolor: '#f5f5f5', style: 'padding:15px; text-align:center;' }
-            %font{ size: 2, color: '#797979', face: 'Arial, sans-serif' }
+          %td{ bgcolor: '#fdddec', style: 'padding:15px; text-align:center;' }
+            %font{ size: 2, color: '#b44475', face: 'Arial, sans-serif' }
               &copy;
               = Time.zone.now.year
               = ENV.fetch('APP_SITE_NAME', 'NightSpring')
               |  · 
-              %a{ href: "mailto:#{ENV.fetch('APP_SUPPORT_EMAIL', 'contact@nightspring.net')}", style: 'color: #5e35b1; text-decoration: none;' }
+              %a{ href: "mailto:#{ENV.fetch('APP_SUPPORT_EMAIL', 'contact@nightspring.net')}", style: 'color: #b44475; text-decoration: none;' }
                 Need help?
