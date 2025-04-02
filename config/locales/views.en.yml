@@ -39,12 +39,12 @@ en:
           profile picture and header image.</p>
 
           <p>Going a step further, you can customise all colours of
-          %{app_name} to your own liking. Don't like purple? Make it blue, red or green!</p>
+          %{app_name} to your own liking. Don't like pink? Make it pink,teal or red!</p>
 
           <p>For a quick demonstration, you can try this out here with a few presets:</p>
         themes:
-          green: "Green"
-          orange: "Orange"
+          pink: "Pink"
+          teal: "Teal"
           red: "Red"
           reset: "Reset"
       open_source:
@@ -62,7 +62,7 @@ en:
     about:
       title: "About"
       subtitle: "About our service, features and other information"
-      about_missing: "The site owner decided not to describe this Retrospring instance, how mysterious!"
+      body: "**NightSpring** is a small and cozy Q&A site built for Twitter users and writers. This site is a space to share thoughts, interact with your followers, and ask or answer questions — anonymously if you’d like.NightSpring is lovingly maintained by a single person. That means moderation is handled manually, and to keep the space safe, **sign-ups may close soon**.Be kind. Be curious. Be respectful. And please note: **NightSpring is for users 18+ only.**"
       statistics:
         header: "Statistics"
         body: "All-time statistics for %{app_name}, updated every time you refresh the page!"
