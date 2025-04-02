@@ -75,21 +75,23 @@ Rails.application.configure do
     enable_starttls_auto = ENV['SMTP_ENABLE_STARTTLS_AUTO'] != 'false'
   end
 
-  # SMTP config (Mailjet or Private Email via ENV)
-  config.action_mailer.smtp_settings = {
-    address: 'mail.privateemail.com',
-    port: 587,
-    domain: 'nightspring.net',
-    authentication: :login,
-    user_name: ENV.fetch('SMTP_USERNAME'),
-    password: ENV.fetch('SMTP_PASSWORD'),
-    enable_starttls: enable_starttls,
-    enable_starttls_auto: enable_starttls_auto,
-    openssl_verify_mode: 'none',
-    tls: ENV['SMTP_TLS'] == 'true',
-    ssl: ENV['SMTP_SSL'] == 'true',
-    read_timeout: 20
-  }
+  # ✅ Safe SMTP settings for build-time & runtime
+  if ENV['SMTP_USERNAME'].present? && ENV['SMTP_PASSWORD'].present?
+    config.action_mailer.smtp_settings = {
+      address: 'mail.privateemail.com',
+      port: 587,
+      domain: 'nightspring.net',
+      authentication: :login,
+      user_name: ENV['SMTP_USERNAME'],
+      password: ENV['SMTP_PASSWORD'],
+      enable_starttls: enable_starttls,
+      enable_starttls_auto: enable_starttls_auto,
+      openssl_verify_mode: 'none',
+      tls: ENV['SMTP_TLS'] == 'true',
+      ssl: ENV['SMTP_SSL'] == 'true',
+      read_timeout: 20
+    }
+  end
 
   config.i18n.fallbacks = true
   config.active_support.deprecation = :notify
