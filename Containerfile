@@ -13,10 +13,10 @@ ENV APP_NAME=NightSpring
 ENV APP_TITLE=NightSpring
 ENV HOSTNAME=nightspring.net
 
-# System dependencies
+# System dependencies (added libidn11-dev to fix idn-ruby build)
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
   build-essential libpq-dev curl git libvips libcurl4-openssl-dev \
-  libffi-dev nodejs yarn imagemagick tzdata \
+  libffi-dev nodejs yarn imagemagick tzdata libidn11-dev \
   && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
@@ -54,9 +54,9 @@ ENV APP_NAME=NightSpring
 ENV APP_TITLE=NightSpring
 ENV HOSTNAME=nightspring.net
 
-# System packages
+# System packages (added libidn11 runtime just in case)
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
-  libpq5 libvips imagemagick curl git \
+  libpq5 libvips imagemagick curl git libidn11 \
   && rm -rf /var/lib/apt/lists/*
 
 # Create app user and working dir
