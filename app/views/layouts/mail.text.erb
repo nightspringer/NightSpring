@@ -1,3 +1,4 @@
 <%= yield %>
 
-© <%= Time.zone.now.year %> <%= APP_CONFIG['site_name'] %>
+© <%= Time.zone.now.year %> <%= ENV.fetch('APP_SITE_NAME', 'NightSpring') %>
+Need help? Contact us: <%= ENV.fetch('APP_SUPPORT_EMAIL', 'contact@nightspring.net') %>
