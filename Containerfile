@@ -43,31 +43,29 @@ RUN addgroup --gid ${GID} app \
 COPY .docker/entrypoint.sh /usr/bin/
 RUN chmod +x /usr/bin/entrypoint.sh
 
-# Switch to app user
-USER app:app
-
-# Install Ruby dependencies
+# Install Ruby dependencies as root to avoid permission issues
 COPY Gemfile* ./
 RUN gem install bundler:$BUNDLER_VERSION \
+ && chmod -R a+w /app \
  && bundle config set without 'development test' \
  && bundle install --jobs=$(nproc)
 
-# JS deps
+# Install Node/Yarn packages
 COPY package.json yarn.lock ./
 RUN yarn install --immutable
 
-# Copy project files
+# Copy full project (after bundle to cache speed)
 COPY . .
 
 # Remove all non-English locale files
 RUN find config/locales -type f ! -name '*.en.yml' -delete
 
-# Optional: precompile assets (skip if you want it on host)
-# ARG SECRET_KEY_BASE=dev_temp
-# ENV SECRET_KEY_BASE=$SECRET_KEY_BASE
-# RUN bundle exec rails assets:precompile
+# Permissions for runtime
+RUN chown -R app:app /app
 
-# Expose dev port
+# Switch to non-root user
+USER app:app
+
 EXPOSE 3000
 
 ENTRYPOINT ["entrypoint.sh"]
