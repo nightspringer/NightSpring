@@ -96,8 +96,8 @@ services:
     branch: staging
     healthCheckPath: /
     buildFilter:
-      branches:
-        only: [ staging ]
+  paths:
+    - "**/*"
     startCommand: >
       bundle exec rails db:migrate &&
       bundle exec rails assets:precompile &&
