@@ -5,13 +5,17 @@ services:
     repo: https://github.com/nightspringer/NightSpring
     runtime: docker
     dockerfilePath: Containerfile
-    plan: free
+    plan: starter
     region: ohio
     branch: main
     healthCheckPath: /
     buildFilter:
       paths:
         - "**/*"
+    startCommand: >
+      bundle exec rails db:migrate &&
+      bundle exec rails assets:precompile &&
+      bundle exec rails server -b 0.0.0.0 -p $PORT
     envVars:
       - key: RAILS_ENV
         value: production
@@ -74,6 +78,10 @@ services:
         value: true
       - key: BUNDLE_WITHOUT
         value: "development:test"
+      - key: WEB_CONCURRENCY
+        value: 1
+      - key: RAILS_MAX_THREADS
+        value: 2
       - key: TZ
         value: UTC
 
@@ -83,13 +91,17 @@ services:
     repo: https://github.com/nightspringer/NightSpring
     runtime: docker
     dockerfilePath: Containerfile
-    plan: free
+    plan: starter
     region: ohio
     branch: staging
     healthCheckPath: /
     buildFilter:
-      paths:
-        - "**/*"
+      branches:
+        only: [ staging ]
+    startCommand: >
+      bundle exec rails db:migrate &&
+      bundle exec rails assets:precompile &&
+      bundle exec rails server -b 0.0.0.0 -p $PORT
     envVars:
       - key: RAILS_ENV
         value: staging
@@ -144,6 +156,10 @@ services:
         value: true
       - key: BUNDLE_WITHOUT
         value: "development:test"
+      - key: WEB_CONCURRENCY
+        value: 1
+      - key: RAILS_MAX_THREADS
+        value: 2
       - key: TZ
         value: UTC
 
