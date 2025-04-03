@@ -30,11 +30,11 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
   libidn11-dev tzdata nodejs yarn git \
   && rm -rf /var/lib/apt/lists/*
 
-# Create application directory
+# Create app dir
 RUN mkdir -p /app /cache
 WORKDIR /app
 
-# Add non-root app user
+# Add app user
 RUN addgroup --gid ${GID} app \
  && adduser --gecos "" --disabled-password --shell /bin/bash --uid ${UID} --gid ${GID} app \
  && chown -R app:app /app /cache
@@ -43,30 +43,28 @@ RUN addgroup --gid ${GID} app \
 COPY .docker/entrypoint.sh /usr/bin/
 RUN chmod +x /usr/bin/entrypoint.sh
 
-# Install Ruby dependencies as root to avoid permission issues
+# Install Ruby deps before app copy (cache friendly)
 COPY Gemfile* ./
 RUN gem install bundler:$BUNDLER_VERSION \
- && chmod -R a+w /app \
  && bundle config set without 'development test' \
  && bundle install --jobs=$(nproc)
 
-# Install Node/Yarn packages
+# Install Node deps before app copy (cache friendly)
 COPY package.json yarn.lock ./
 RUN yarn install --immutable
 
-# Copy full project (after bundle to cache speed)
+# Copy app source code
 COPY . .
 
-# Remove all non-English locale files
+# Clean non-English locale files
 RUN find config/locales -type f ! -name '*.en.yml' -delete
 
-# Permissions for runtime
+# Set ownership
 RUN chown -R app:app /app
 
-# Switch to non-root user
+# Switch to app user
 USER app:app
 
 EXPOSE 3000
-
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["rails", "server", "-b", "0.0.0.0"]
