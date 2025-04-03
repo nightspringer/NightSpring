@@ -2,122 +2,126 @@
 
 source "https://rubygems.org"
 
-gem "i18n-js", "4.0"
+# Core Framework
 gem "rails", "~> 7.1"
-gem "rails-i18n", "~> 7.0"
+gem "pg"
+gem "puma"
 
-gem "cssbundling-rails", "~> 1.4"
-gem "jsbundling-rails", "~> 1.3"
+# UI & Asset Pipeline
 gem "sassc-rails"
 gem "sprockets", "~> 4.2"
 gem "sprockets-rails", require: "sprockets/railtie"
+gem "cssbundling-rails", "~> 1.4"
+gem "jsbundling-rails", "~> 1.3"
 
-gem "pg"
-
+# Hotwire
 gem "turbo-rails"
 
+# Authentication
 gem "bcrypt", "~> 3.1.20"
-
-gem "active_model_otp"
-gem "bootsnap", require: false
-gem "bootstrap_form", "~> 5.0"
-gem "carrierwave", "~> 2.1"
-gem "carrierwave_backgrounder", "~> 0.4.2"
-gem "colorize"
 gem "devise", "~> 4.9"
 gem "devise-async"
-gem "devise-i18n"
+
+# Image & Uploads
+gem "mini_magick"
+gem "carrierwave", "~> 2.1"
+gem "carrierwave_backgrounder", "~> 0.4.2"
+
+# Form Helpers & Views
+gem "bootstrap_form", "~> 5.0"
+gem "view_component"
+gem "haml", "~> 6.3"
+
+# Background Jobs
+gem "sidekiq", "< 7"
+gem "sidekiq-scheduler"
+gem "redis"
+gem "connection_pool"
+
+# Admin
+gem "rails_admin"
+gem "pghero"
+
+# Authorization
+gem "pundit", "~> 2.5"
+gem "rolify", "~> 6.0"
+
+# Push Notifications
+gem "rpush"
+gem "web-push"
+
+# External Services
+gem "httparty"
 gem "fog-aws"
 gem "fog-core"
 gem "fog-local"
-gem "haml", "~> 6.3"
+
+# Security & Anti-Spam
+gem "sanitize"
 gem "hcaptcha", git: "https://github.com/retrospring/hcaptcha", ref: "fix/flash-in-turbo-streams"
-gem "mini_magick"
+gem "fake_email_validator"
+gem "tldv", "~> 0.1.0"
+
+# Utility
+gem "colorize"
 gem "oj"
-gem "rpush"
 gem "rqrcode"
-gem "web-push"
+gem "jwt", "~> 2.10"
+gem "rubyzip", "~> 2.4"
 
-gem "rolify", "~> 6.0"
-
-gem "dry-initializer", "~> 3.2"
-gem "dry-types", "~> 1.8"
-
-gem "pghero"
-gem "rails_admin"
+# Metrics & Monitoring
 gem "sentry-rails"
 gem "sentry-ruby"
 gem "sentry-sidekiq"
+gem "lograge"
+gem "prometheus-client", "~> 4.2"
 
-gem "sidekiq", "< 7" # remove version constraint once are ready to upgrade https://github.com/mperham/sidekiq/blob/main/docs/7.0-Upgrade.md
-gem "sidekiq-scheduler"
-
-gem "questiongenerator", "~> 1.1"
-
-gem "httparty"
+# Text Processing
 gem "redcarpet"
-gem "sanitize"
-
 gem "twitter-text"
 
-gem "connection_pool"
-gem "redis"
+# OTP
+gem "active_model_otp"
 
-gem "fake_email_validator"
+# Custom
+gem "questiongenerator", "~> 1.1"
 
-# TLD validation
-gem "tldv", "~> 0.1.0"
+# Mail fixes
+gem "net-imap"
+gem "net-pop"
+gem "net-smtp"
+gem "mail", "~> 2.7.1"
+gem "openssl", "~> 3.3"
 
-gem "view_component"
+# Performance
+gem "bootsnap", require: false
 
-gem "jwt", "~> 2.10"
-
+# Development
 group :development do
   gem "binding_of_caller"
 end
 
-gem "puma"
-
+# Dev + Test
 group :development, :test do
+  gem "dotenv-rails", "~> 3.1"
   gem "better_errors"
   gem "bullet"
-  gem "database_cleaner"
-  gem "dotenv-rails", "~> 3.1"
-  gem "factory_bot_rails", require: false
   gem "faker"
-  gem "haml_lint", require: false
-  gem "json-schema"
-  gem "letter_opener" # Use this just in local test environments
+  gem "factory_bot_rails", require: false
+  gem "database_cleaner"
   gem "rails-controller-testing"
   gem "rake"
-  gem "rspec-its", "~> 2.0"
-  gem "rspec-mocks"
   gem "rspec-rails", "~> 7.1"
+  gem "rspec-mocks"
+  gem "rspec-its", "~> 2.0"
   gem "rspec-sidekiq", "~> 5.1", require: false
   gem "rubocop", "~> 1.74"
   gem "rubocop-rails", "~> 2.30"
   gem "shoulda-matchers", "~> 6.4"
   gem "simplecov", require: false
-  gem "simplecov-cobertura", require: false
   gem "simplecov-json", require: false
+  gem "simplecov-cobertura", require: false
+  gem "haml_lint", require: false
+  gem "json-schema"
+  gem "letter_opener"
 end
-
-group :production do
-  gem "lograge"
-end
-
-gem "net-imap"
-gem "net-pop"
-gem "net-smtp"
-
-gem "pundit", "~> 2.5"
-
-gem "rubyzip", "~> 2.4"
-
-# to solve https://github.com/jwt/ruby-jwt/issues/526
-gem "openssl", "~> 3.3"
-
-# mail 2.8.0 breaks sendmail usage: https://github.com/mikel/mail/issues/1538
-gem "mail", "~> 2.7.1"
-
-gem "prometheus-client", "~> 4.2"
