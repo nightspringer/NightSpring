@@ -1,9 +1,13 @@
 class Retromail < Devise::Mailer
   helper :application
   include Devise::Controllers::UrlHelpers
-  default from: "#{ENV.fetch('APP_SITE_NAME', 'NightSpring')} <#{ENV.fetch('APP_EMAIL_FROM', 'noreply@nightspring.net')}>",
+
+  default from:       ENV.fetch('SMTP_FROM', 'NightSpring <noreply@nightspring.net>'),
+          reply_to:   ENV.fetch('SMTP_REPLY_TO', 'contact@nightspring.net'),
+          return_path: ENV.fetch('SMTP_RETURN_PATH', 'contact@nightspring.net'),
           template_path: 'devise/mailer',
           parts_order: ['text/plain', 'text/html']
+
   layout 'mail'
 
   def devise_mail(record, action, opts = {})
