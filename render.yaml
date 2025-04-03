@@ -12,10 +12,6 @@ services:
     buildFilter:
       paths:
         - "**/*"
-    startCommand: >
-      bundle exec rails db:migrate &&
-      bundle exec rails assets:precompile &&
-      bundle exec rails server -b 0.0.0.0 -p $PORT
     envVars:
       - key: RAILS_ENV
         value: production
@@ -32,6 +28,8 @@ services:
           name: nightspring-redis
           type: redis
           property: connectionString
+
+      # Mailer
       - key: SMTP_USERNAME
         value: noreply@nightspring.net
       - key: SMTP_PASSWORD
@@ -42,6 +40,8 @@ services:
         value: contact@nightspring.net
       - key: SMTP_RETURN_PATH
         value: contact@nightspring.net
+
+      # Branding
       - key: SITE_NAME
         value: NightSpring
       - key: APP_NAME
@@ -52,6 +52,8 @@ services:
         value: nightspring.net
       - key: MAILER_HOST
         value: nightspring.net
+
+      # Theming (Production)
       - key: THEME_PRIMARY_COLOR
         value: "#ec4899"
       - key: THEME_ACCENT_COLOR
@@ -60,6 +62,8 @@ services:
         value: "#ffffff"
       - key: THEME_DARK_MODE
         value: false
+
+      # Performance
       - key: RAILS_LOG_TO_STDOUT
         value: true
       - key: RAILS_LOG_LEVEL
@@ -90,10 +94,6 @@ services:
     buildFilter:
       paths:
         - "**/*"
-    startCommand: >
-      bundle exec rails db:migrate &&
-      bundle exec rails assets:precompile &&
-      bundle exec rails server -b 0.0.0.0 -p $PORT
     envVars:
       - key: RAILS_ENV
         value: staging
@@ -110,18 +110,24 @@ services:
           name: nightspring-redis
           type: redis
           property: connectionString
+
+      # Mailer
       - key: SMTP_USERNAME
         value: noreply@nightspring.net
       - key: SMTP_PASSWORD
         sync: false
       - key: MAILER_HOST
         value: nightspring-staging.onrender.com
+
+      # Branding
       - key: SITE_NAME
         value: NightSpring (Staging)
       - key: APP_NAME
         value: NightSpring
       - key: HOSTNAME
         value: nightspring-staging.onrender.com
+
+      # Theming (Staging)
       - key: THEME_PRIMARY_COLOR
         value: "#eab308"
       - key: THEME_ACCENT_COLOR
@@ -130,6 +136,8 @@ services:
         value: "#f0f0f0"
       - key: THEME_DARK_MODE
         value: true
+
+      # Performance
       - key: RAILS_LOG_TO_STDOUT
         value: true
       - key: RAILS_LOG_LEVEL
@@ -147,7 +155,7 @@ services:
       - key: TZ
         value: UTC
 
-  # === SHARED REDIS ==============================
+# === SHARED REDIS ==============================
   - type: redis
     name: nightspring-redis
     plan: free
@@ -156,6 +164,7 @@ services:
       - source: 0.0.0.0/0
         description: allow all
 
+# === DATABASES ==============================
 databases:
   - name: nightspring-db
     region: ohio
