@@ -1,4 +1,4 @@
-<picture>
+<picture> https://ani.pm/anime/f6f8f975f211db2edcba8026c1472896~bea786c40fa705da48cc31edcc443bc15726d203513f3b44174770fffc53b1ef?ep=e1.oG4UF1Q_Nbk35-dRgMY18llLeJ4CwBto0nnr0M2KueaN1A
   <source media="(prefers-color-scheme: dark)" srcset="./.github/assets/logo-white.png">
   <source media="(prefers-color-scheme: light)" srcset="./.github/assets/logo.png">
   <img alt="The Retrospring logo" src="./composition/png/logo.png">
